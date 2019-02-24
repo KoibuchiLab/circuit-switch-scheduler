@@ -1,5 +1,5 @@
 //
-// circuit-switch-table.cc
+// circuit-switch-scheduler.cc
 //
 // mesh/torus/fat-tree/fully-connected/full-mesh-connected-circles(FCC)
 // Usage: cat test.txt | ./cst.out -D 2 -a 4 -T 0  <-- 2-D 16-node mesh
@@ -25,6 +25,8 @@
 
 #include <fstream> //file output
 #include <sstream> //string operation
+
+#include <stdio.h>
 
 #include <thread>
 #include <unistd.h> //sleep for secs
@@ -152,7 +154,7 @@ bool SRF(Job a, Job b) { return (a.time_run < b.time_run); } //small runtime fir
 //
 void show_paths (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
 int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
-bool path_based, int degree, int default_slot, vector<Flow> flows)
+bool path_based, int degree, int default_slot)
 {
    // for each channel
    //cout << " === Port information for each switch === " << endl;
@@ -204,10 +206,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
         cout << " X1, X2, (X3, X4, X5, X6, X7, X8, ...), Out, In " << endl;
 
    	cout << " SW " << setw(2) << port/(degree+1+2*Host_Num) << ":  ";    while ( elem != Crossing_Paths.end() ){
-      if (port%(degree+1+2*Host_Num)!=0) {
-        if (flows.size() == 0) cout << " " << (*elem).pair_index.size();
-        else cout << " " << (*elem).flow_index.size();
-      }
+      if (port%(degree+1+2*Host_Num)!=0) cout << " " << (*elem).flow_index.size();
       
       //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} 
 
@@ -259,7 +258,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
             slot_num = current_pair.ID;
-            if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
+            slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
@@ -480,7 +479,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
 //
 void show_paths_tree (vector<Cross_Paths> Crossing_Paths, int ct, int node_num, \
 int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
-bool path_based, int PORT, int default_slot, vector<Flow> flows)
+bool path_based, int PORT, int default_slot)
 {
         // for each channel
         //cout << " === Port information for each switch === " << endl;
@@ -526,8 +525,7 @@ bool path_based, int PORT, int default_slot, vector<Flow> flows)
         cout << " UP0, DOWN1, DOWN2, DOWN3, DOWN4, ... " << endl;
         cout << " Node " << setw(2) << outport/PORT << ":  ";    
         while ( elem != Crossing_Paths.end() ){
-                if (flows.size()==0) cout << " " << (*elem).pair_index.size();
-                else cout << " " << (*elem).flow_index.size();
+                cout << " " << (*elem).flow_index.size();
                 elem ++; outport++;
                 if ( outport%PORT == 0 && elem != Crossing_Paths.end() ){
                         if ( outport == PORT * (node_num+node_num/Host_Num+node_num/(int)pow(Host_Num,2)) && node_num/(int)pow(Host_Num,2) <= 1 ) break; // two-layer switches
@@ -564,7 +562,7 @@ bool path_based, int PORT, int default_slot, vector<Flow> flows)
         for (int i=0; i < pairs.size(); i++){
                 Pair current_pair = pairs[i];
                 slot_num = current_pair.ID;
-                if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
+                slot_num = flows[current_pair.flow_id].ID;
                 //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
                 cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
                 for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> from src node, current_pair.channels[-1] --> to dst node
@@ -677,7 +675,7 @@ bool path_based, int PORT, int default_slot, vector<Flow> flows)
 //
 void show_paths_fullyconnected (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
 int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
-bool path_based, int degree, int default_slot, vector<Flow> flows)
+bool path_based, int degree, int default_slot)
 {
    // for each channel
    //cout << " === Port information for each switch === " << endl;
@@ -721,10 +719,8 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
         cout << " X1, X2, X3, X4, X5, X6, X7, X8, ... " << endl;
 
         cout << " SW " << setw(2) << port/(degree+1+2*Host_Num) << ":  ";    while ( elem != Crossing_Paths.end() ){
-      if (port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1) {
-        if (flows.size() == 0) cout << " " << (*elem).pair_index.size();
-        else cout << " " << (*elem).flow_index.size();
-      }
+      if (port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1) cout << " " << (*elem).flow_index.size();
+
       //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} 
 
       //if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1)  total_slots += (*elem).pair_index.size();
@@ -762,7 +758,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
             slot_num = current_pair.ID;
-            if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
+            slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
             for (int j=0; j < current_pair.channels.size(); j++){ // only current_pair.channels[0] --> from src to dst
@@ -860,7 +856,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
 //  
 void show_paths_fcc (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
 int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
-bool path_based, int degree, int default_slot, vector<Flow> flows)
+bool path_based, int degree, int default_slot)
 {
    // for each channel
    //cout << " === Port information for each switch === " << endl;
@@ -904,10 +900,8 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
         cout << " backward, forward, inter-group1, inter-group1, inter-group2, inter-group3, inter-group4, inter-group5, inter-group6, ... " << endl;
 
         cout << " SW " << setw(2) << port/(degree+1+2*Host_Num) << ":  ";    while ( elem != Crossing_Paths.end() ){
-      if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1){
-        if (flows.size() == 0) cout << " " << (*elem).pair_index.size();
-        else cout << " " << (*elem).flow_index.size();
-      } 
+      if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1) cout << " " << (*elem).flow_index.size();
+ 
       //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} 
 
       //if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1)  total_slots += (*elem).pair_index.size();
@@ -945,7 +939,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
             slot_num = current_pair.ID;
-            if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
+            slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
@@ -1114,7 +1108,7 @@ bool path_based, int degree, int default_slot, vector<Flow> flows)
 //  
 void show_paths_tf (vector<Cross_Paths> Crossing_Paths, int ct, int switch_num, \
 int max_id, vector<Pair> pairs, int hops, int Host_Num, int max_cp, int max_cp_dst,
-bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, int default_slot, vector<Flow> flows)
+bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, int default_slot)
 {
    // for each channel
    //cout << " === Port information for each switch === " << endl;
@@ -1158,10 +1152,8 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
         cout << " SW0, SW1, SW2, SW3, SW4, ... " << endl;
 
         cout << " SW " << setw(2) << port/((switch_num-1)+1+2*Host_Num) << ":  ";    while ( elem != Crossing_Paths.end() ){
-      if (port%((switch_num-1)+1+2*Host_Num)!=(switch_num-1)+2*Host_Num && port%((switch_num-1)+1+2*Host_Num)!=(switch_num-1)+2*Host_Num-1) {
-        if (flows.size() == 0) cout << " " << (*elem).pair_index.size();
-        else cout << " " << (*elem).flow_index.size();
-      }
+      if (port%((switch_num-1)+1+2*Host_Num)!=(switch_num-1)+2*Host_Num && port%((switch_num-1)+1+2*Host_Num)!=(switch_num-1)+2*Host_Num-1) cout << " " << (*elem).flow_index.size();
+
       //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();} 
 
       //if (port%(degree+1+2*Host_Num)!=0 && port%(degree+1+2*Host_Num)!=degree+2*Host_Num && port%(degree+1+2*Host_Num)!=degree+2*Host_Num-1)  total_slots += (*elem).pair_index.size();
@@ -1199,7 +1191,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
     for (int i=0; i < pairs.size(); i++){
             Pair current_pair = pairs[i];
             slot_num = current_pair.ID;
-            if (flows.size()>0) slot_num = flows[current_pair.flow_id].ID;
+            slot_num = flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
             cout << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
 
@@ -1579,7 +1571,7 @@ vector<Pair> src_dst_pairs_map(vector<Pair> src_dst_pairs, vector<int> nodes, in
 
 //update routing tables after nodes released 
 //void update_after_release(Pair pair, int topo, int degree, int Host_Num, int PORT, vector<int> sys, vector<Pair> queue)
-void update_after_release(Pair pair)
+void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths)
 {
 //        vector<int> nodelist; // list of nodes occupied by pair
 //        if (topo == 0 || topo == 1) // mesh or torus
@@ -1617,23 +1609,32 @@ void update_after_release(Pair pair)
 //        } 
 
        //update Crossing_Paths
-       for (int i=0; i<pair.channels.size(); i++){
-               vector<int> v = Crossing_paths[pair.channels[i]].pair_index;
-               v.erase(remove(v.begin(), v.end(), pair.pair_id), v.end());
-               for (int j=4; j<Crossing_paths[pair.channels[i]].routing_table.size(); j=j+5){
-                       if (Crossing_paths[pair.channels[i]].routing_table[j] == pair.pair_id){
-                               Crossing_paths[pair.channels[i]].routing_table[j-4] = -1;
-                               Crossing_paths[pair.channels[i]].routing_table[j-3] = -1;
-                               Crossing_paths[pair.channels[i]].routing_table[j-2] = -1;
-                               Crossing_paths[pair.channels[i]].routing_table[j-1] = -1;
-                               Crossing_paths[pair.channels[i]].routing_table[j] = -1;
-                       }
-               }
-       }
+        for (int p=0; p<job.src_dst_pairs_m.size(); p++){
+        //update Crossing_Paths
+        for (int i=0; i<job.src_dst_pairs_m[p].channels.size(); i++){
+                vector<int> v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].pair_index;
+                v.erase(remove(v.begin(), v.end(), job.src_dst_pairs_m[p].pair_id), v.end());
+                v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index;
+                v.erase(remove(v.begin(), v.end(), job.job_id*1000+job.src_dst_pairs_m[p].flow_id), v.end());  
+                v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list;
+                v.erase(remove(v.begin(), v.end(), job.flows[job.job_id*1000+job.src_dst_pairs_m[p].flow_id].ID), v.end()); 
+                v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list;
+                v.erase(remove(v.begin(), v.end(), job.src_dst_pairs_m[p].h_dst), v.end());                                             
+                for (int j=4; j<Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table.size(); j=j+5){
+                        if (Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j] == job.src_dst_pairs_m[p].pair_id){
+                                Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-4] = -1;
+                                Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-3] = -1;
+                                Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-2] = -1;
+                                Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-1] = -1;
+                                Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j] = -1;
+                        }
+                }
+        }
+        }
 }
 
 //release nodes after execution
-void release_nodes(Job job, vector<int> & sys)
+void release_nodes(Job job, vector<int> & sys, vector<Cross_Paths> & Crossing_Paths)
 {
        sleep(job.time_run);
 
@@ -1641,16 +1642,1170 @@ void release_nodes(Job job, vector<int> & sys)
                sys[job.nodes[n]] = 0; //released
        }       
 
-       for(int i=0; i<job.src_dst_pairs_m.size(); i++){
-               update_after_release(src_dst_pairs_m[i])
-       }
+       update_after_release(job, Crossing_Paths);
 
        //cout << "Job " << job.job_id << " is finished" << endl;  
        printf("Job %d is finished\n", job.job_id); 
 }
 
+// ########################################## //
+// ##############   PHASE 1   ############### //
+// ##        routing       ## //
+// ########################################## //
+void route_job(int Topology, Job & job, int degree, int switch_num, int Host_Num, vector<Cross_Paths> & Crossing_Paths, int dimension, int array_size, int & hops, int & before_hops, int PORT, int node_num, 
+                int groups, int group_switch_num, vector<int> & Switch_Topo, int inter_group, vector<int> topo_file, vector<int> topo_sws_uni, int & src, int & dst, int & h_src, int & h_dst, int & ct){
+   if (Topology == 0 || Topology == 1) //mesh or torus
+   {
+        for (int i=0; i<job.src_dst_pairs_m.size(); i++){
+            h_src = job.src_dst_pairs_m[i].h_src;
+            h_dst = job.src_dst_pairs_m[i].h_dst;
+            src = job.src_dst_pairs_m[i].src;
+            dst = job.src_dst_pairs_m[i].dst;
+            ct = job.src_dst_pairs_m[i].pair_id;
+
+            bool wrap_around_x = false;
+            bool wrap_around_y = false;
+            bool wrap_around_z = false; //3D
+            bool wrap_around_a = false; //4D
+
+            //#######################//
+            // e.g. 3D
+            // (switch port: 0 (not used), 1 +x, 2 -x, 3 -y, 4 +y, 5 -z, 6 +z, 7 localhost->switch, 8 switch-> localhost)
+            // switch port:1 +x, 2 -x, 3 +y, 4 -y, 5 -z, 6 +z,
+                    // from 7 to (6+Host_Num) localhost->switch,
+                    // from (7+Host_Num) to (6+Host_Num*2) switch-> localhost
+            //#######################//
+
+            // channel <-- node pair ID, node pair <-- channel ID 
+            //Pair tmp_pair(src,dst,h_src,h_dst);  
+            //pairs.push_back(tmp_pair);
+            int t = src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
+            // int t = (dst%2==1 && Topology==1) ? 
+            //         Vch*src*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+h_src%Host_Num
+            //         : Vch*src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
+            Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+            job.src_dst_pairs_m[i].channels.push_back(t);  // node pair <-- channel ID  
+
+            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+            //pairs[ct].pair_id = ct; 
+            int delta_x, delta_y, delta_z, delta_a, current, src_xy, dst_xy, src_xyz, dst_xyz; // 2D, 3D, 4D
+            if (dimension == 2 || dimension == 1){ //2D, 1D
+                    src_xy = src; 
+                    dst_xy = dst; 
+            }
+            if (dimension == 3){ //3D
+                    src_xy = src%int(pow(array_size,2)); 
+                    dst_xy = dst%int(pow(array_size,2)); 
+            }
+            if (dimension == 4){ //4D
+                    src_xyz = src%int(pow(array_size,3)); 
+                    dst_xyz = dst%int(pow(array_size,3)); 
+                    src_xy = src_xyz%int(pow(array_size,2)); 
+                    dst_xy = dst_xyz%int(pow(array_size,2));   
+            }
+            switch (Topology){
+            case 0: //mesh
+                    //  if (dimension == 2){ //2D
+                    //         delta_x = dst%array_size - src%array_size;
+                    //         delta_y = dst/array_size - src/array_size;
+                    //  }
+                    if (dimension == 3){ //3D
+                            delta_z = dst/int(pow(array_size,2)) - src/int(pow(array_size,2)); 
+                            // delta_x = dst_xy%array_size - src_xy%array_size; 
+                            // delta_y = dst_xy/array_size - src_xy/array_size; 
+                    }
+                    if (dimension == 4){ //4D
+                    delta_a = dst/int(pow(array_size,3)) - src/int(pow(array_size,3));
+                    delta_z = dst_xyz/int(pow(array_size,2)) - src_xyz/int(pow(array_size,2)); 
+                    //        delta_x = dst_xy%array_size - src_xy%array_size; 
+                    //        delta_y = dst_xy/array_size - src_xy/array_size; 
+                    }
+                    //4D, 3D, 2D, 1D(delta_y=0)
+                    delta_x = dst_xy%array_size - src_xy%array_size; 
+                    delta_y = dst_xy/array_size - src_xy/array_size; 
+                    current = src; 
+                    break;
+
+            case 1: // torus
+                    if (dimension == 4){ //4D
+                            delta_a = dst/int(pow(array_size,3)) - src/int(pow(array_size,3));
+                            if ( delta_a < 0 && abs(delta_a) > array_size/2 ) {
+                            //delta_a = -( delta_a + array_size/2);
+                            delta_a = delta_a + array_size;
+                                    wrap_around_a = true;		
+                            } else if ( delta_a > 0 && abs(delta_a) > array_size/2 ) {
+                            //delta_a = -( delta_a - array_size/2);
+                            delta_a = delta_a - array_size;
+                                    wrap_around_a = true;		
+                            }
+                            delta_z = dst_xyz/int(pow(array_size,2)) - src_xyz/int(pow(array_size,2));
+                            if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
+                            //delta_z = -( delta_z + array_size/2);
+                            delta_z = delta_z + array_size;
+                                    wrap_around_z = true;		
+                            } else if ( delta_z > 0 && abs(delta_z) > array_size/2 ) {
+                            //delta_z = -( delta_z - array_size/2);
+                            delta_z = delta_z - array_size;
+                                    wrap_around_z = true;		
+                            }
+                    }
+                    if (dimension == 3){ //3D
+                            delta_z = dst/int(pow(array_size,2)) - src/int(pow(array_size,2));
+                            if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
+                            //delta_z = -( delta_z + array_size/2);
+                            delta_z = delta_z + array_size;
+                                    wrap_around_z = true;		
+                            } else if ( delta_z > 0 && abs(delta_z) > array_size/2 ) {
+                            //delta_z = -( delta_z - array_size/2);
+                            delta_z = delta_z - array_size;
+                                    wrap_around_z = true;		
+                            }
+                    }
+                    //4D, 3D, 2D, 1D(delta_y=0)
+                    delta_x = dst_xy%array_size - src_xy%array_size;
+                    if ( delta_x < 0 && abs(delta_x) > array_size/2 ) {
+                    //delta_x = -( delta_x + array_size/2);
+                    delta_x = delta_x + array_size;
+                            wrap_around_x = true;		
+                    } else if ( delta_x > 0 && abs(delta_x) > array_size/2 ) {
+                    //delta_x = -( delta_x - array_size/2);
+                    delta_x = delta_x - array_size;
+                            wrap_around_x = true;		
+                    }
+                    delta_y = dst_xy/array_size - src_xy/array_size;
+                    if ( delta_y < 0 && abs(delta_y) > array_size/2 ) {
+                    //delta_y = -( delta_y + array_size/2);
+                    delta_y = delta_y + array_size;
+                            wrap_around_y = true;		
+                    } else if ( delta_y > 0 && abs(delta_y) > array_size/2 ) {
+                    //delta_y = -( delta_y - array_size/2);
+                    delta_y = delta_y - array_size;
+                            wrap_around_y = true;		
+                    }
+                    current = src; 
+                    break;
+            default:
+                    cerr << "Please select -t0, or -t1 option" << endl;
+                    exit(1);
+                    break;
+            }
+
+            if (dimension == 4) //4D
+            {
+                    job.src_dst_pairs_m[i].hops = abs(delta_x) + abs(delta_y)+ abs(delta_z) + abs(delta_a);
+            }
+            if (dimension == 3) //3D
+            {
+                    job.src_dst_pairs_m[i].hops = abs(delta_x) + abs(delta_y)+ abs(delta_z);
+            }
+            if (dimension == 2 || dimension == 1) //2D, 1D(delta_y=0)
+            {
+                    job.src_dst_pairs_m[i].hops = abs(delta_x) + abs(delta_y);
+            }
+
+            if (dimension == 4){ //4D routing
+                    if (delta_a > 0){
+                            while ( delta_a != 0 ){  //-a
+                            int t = current * (degree+1+2*Host_Num) + 7;
+                            // int t = (wrap_around_a) ? Vch*current*(degree+1+2*Host_Num)+7+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 7;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            //if ( current % (array_size*array_size) == array_size-1) { 
+                            if ( current >= array_size*array_size*array_size*(array_size-1)) {
+                            wrap_around_a = false;
+                            current = current - (array_size -1)*array_size*array_size*array_size;
+                            } else current += array_size*array_size*array_size; 
+                            delta_a--;
+                            hops++;
+                            }
+                    } else if (delta_a < 0){
+                            while ( delta_a != 0 ){  //+a
+                            int t = current * (degree+1+2*Host_Num) + 8;
+                            // int t = (wrap_around_a) ? Vch*current*(degree+1+2*Host_Num)+8+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 8;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            //if ( current % (array_size*array_size) == 0 ) { 
+                            if ( current < array_size*array_size*array_size) {
+                            wrap_around_a = false;
+                            current = current + (array_size -1)*array_size*array_size*array_size;
+                            } else current -= array_size*array_size*array_size;
+                            hops++;
+                            delta_a++;
+                            }
+                    }
+                    
+                    if (delta_a != 0){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    } 
+
+                    if (delta_z > 0){
+                            while ( delta_z != 0 ){ // -z
+                            int t = current * (degree+1+2*Host_Num) + 5;
+                            // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+5+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 5;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            //if ( current % (array_size*array_size) == array_size-1) { 
+                            if ( (current%(array_size*array_size*array_size)) >= array_size*array_size*(array_size-1)) { 
+                            wrap_around_z = false;
+                            current = current - (array_size -1)*array_size*array_size;
+                            } else current += array_size*array_size; 
+                            delta_z--;
+                            hops++;
+                            }
+                    } else if (delta_z < 0){
+                            while ( delta_z != 0 ){ // +z
+                            int t = current * (degree+1+2*Host_Num) + 6;
+                            // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+6+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 6;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            //if ( current % (array_size*array_size) == 0 ) { 
+                            if ( (current%(array_size*array_size*array_size)) < array_size*array_size) {
+                            wrap_around_z = false;
+                            current = current + (array_size -1)*array_size*array_size;
+                            } else current -= array_size*array_size;
+                            hops++;
+                            delta_z++;
+                            }
+                    }
+                    
+                    if (delta_z != 0){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }
+
+                    // X 
+                    if (delta_x > 0){
+                            while ( delta_x != 0 ){ // +x
+                            int t = current * (degree+1+2*Host_Num) + 1;
+                            // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+1+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 1;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) % array_size == array_size-1) { 
+                            wrap_around_x = false;
+                            current = current - (array_size -1);
+                            } else current++; 
+                            delta_x--;
+                            hops++;
+                            }
+                    } else if (delta_x < 0){
+                            while ( delta_x != 0 ){ // -x
+                            int t = current * (degree+1+2*Host_Num) + 2;
+                            // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+2+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 2;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) % array_size == 0 ) { 
+                            wrap_around_x = false;
+                            current = current + (array_size - 1);
+                            } else current--;
+                            hops++;
+                            delta_x++;
+                            }
+                    }
+                    
+                    if (delta_x != 0){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }
+
+                    // Y 
+                    if (delta_y > 0){
+                            while ( delta_y != 0 ){ // -y
+                            int t = current * (degree+1+2*Host_Num) + 3;
+                            // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 3;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) >= array_size*(array_size-1) ){ 
+                            wrap_around_y = false;
+                            current = current - array_size*(array_size -1);
+                            } else current += array_size;
+                            hops++;
+                            delta_y--;
+                            }
+                    } else if (delta_y < 0){
+                            while ( delta_y != 0 ){ // +y
+                            int t = current * (degree+1+2*Host_Num) + 4;
+                            // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+4+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 4;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) < array_size ) {
+                            wrap_around_y = false;
+                            current = current + array_size*(array_size -1);
+                            } else current -= array_size;
+                            hops++;
+                            delta_y++;
+                            }
+                    }
+                    
+                    if ( delta_x != 0 || delta_y != 0 || delta_z != 0 || delta_a != 0){ 
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }         
+            }
+            
+            if (dimension == 3){ //3D routing
+                    if (delta_z > 0){
+                            while ( delta_z != 0 ){ // -z
+                            int t = current * (degree+1+2*Host_Num) + 5;
+                            // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+5+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 5;
+                            Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
+                            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            //if ( current % (array_size*array_size) == array_size-1) { 
+                            if ( current >= array_size*array_size*(array_size-1)) {
+                            wrap_around_z = false;
+                            current = current - (array_size -1)*array_size*array_size;
+                            } else current += array_size*array_size; 
+                            delta_z--;
+                            hops++;
+                            }
+                    } else if (delta_z < 0){
+                            while ( delta_z != 0 ){ // +z
+                            int t = current * (degree+1+2*Host_Num) + 6;
+                            // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+6+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 6;
+                            Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+                            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            //if ( current % (array_size*array_size) == 0 ) { 
+                            if ( current < array_size*array_size) {
+                            wrap_around_z = false;
+                            current = current + (array_size -1)*array_size*array_size;
+                            } else current -= array_size*array_size;
+                            hops++;
+                            delta_z++;
+                            }
+                    }
+                    
+                    if (delta_z != 0){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }
+
+                    // X
+                    if (delta_x > 0){
+                            while ( delta_x != 0 ){ // +x
+                            int t = current * (degree+1+2*Host_Num) + 1;
+                            // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+1+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 1;
+                            Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+                            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( (current % (array_size*array_size)) % array_size == array_size-1) { 
+                            wrap_around_x = false;
+                            current = current - (array_size -1);
+                            } else current++; 
+                            delta_x--;
+                            hops++;
+                            }
+                    } else if (delta_x < 0){
+                            while ( delta_x != 0 ){ // -x
+                            int t = current * (degree+1+2*Host_Num) + 2;
+                            // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+2+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 2;
+                            Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+                            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( (current % (array_size*array_size)) % array_size == 0 ) { 
+                            wrap_around_x = false;
+                            current = current + (array_size - 1);
+                            } else current--;
+                            hops++;
+                            delta_x++;
+                            }
+                    }
+                    
+                    // check X routing is finished 
+                    if (delta_x != 0){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }
+
+                    // Y 
+                    if (delta_y > 0){
+                            while ( delta_y != 0 ){ // -y
+                            int t = current * (degree+1+2*Host_Num) + 3;
+                            // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 3;
+                            Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+                            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( (current % (array_size*array_size)) >= array_size*(array_size-1) ){ 
+                            wrap_around_y = false;
+                            current = current - array_size*(array_size -1);
+                            } else current += array_size;
+                            hops++;
+                            delta_y--;
+                            }
+                    } else if (delta_y < 0){
+                            while ( delta_y != 0 ){ // +y
+                            int t = current * (degree+1+2*Host_Num) + 4;
+                            // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+4+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 4;
+                            Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
+                            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( (current % (array_size*array_size)) < array_size ) { 
+                            wrap_around_y = false;
+                            current = current + array_size*(array_size -1);
+                            } else current -= array_size;
+                            hops++;
+                            delta_y++;
+                            }
+                    }
+                    
+                    // check if X,Y,Z routing are finished 
+                    if ( delta_x != 0 || delta_y != 0 || delta_z != 0){ 
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }        
+            }
+
+            if (dimension == 2 || dimension == 1){ //2D routing, 1D routing (delta_y=0)
+                    // X 
+                    if (delta_x > 0){
+                            while ( delta_x != 0 ){ // +x
+                            int t = current * (degree+1+2*Host_Num) + 1;
+                            // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+1+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 1;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( current % array_size == array_size-1) {
+                            wrap_around_x = false;
+                            current = current - (array_size -1);
+                            } else current++; 
+                            delta_x--;
+                            hops++;
+                            }
+                    } else if (delta_x < 0){
+                            while ( delta_x != 0 ){ // -x
+                            int t = current * (degree+1+2*Host_Num) + 2;
+                            // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+2+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 2;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( current % array_size == 0 ) {
+                            wrap_around_x = false;
+                            current = current + (array_size - 1 );
+                            } else current--;
+                            hops++;
+                            delta_x++;
+                            }
+                    }
+                    
+                    if (delta_x != 0){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }
+
+                    // Y
+                    if (delta_y > 0){
+                            while ( delta_y != 0 ){ // -y
+                            int t = current * (degree+1+2*Host_Num) + 3;
+                            // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 3;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( current >= array_size*(array_size-1) ){
+                            wrap_around_y = false;
+                            current = current - array_size*(array_size -1);
+                            } else current += array_size;
+                            hops++;
+                            delta_y--;
+                            }
+                    } else if (delta_y < 0){
+                            while ( delta_y != 0 ){ // +y
+                            int t = current * (degree+1+2*Host_Num) + 4;
+                            // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+4+(degree+1+2*Host_Num) :
+                            // Vch * current * (degree+1+2*Host_Num) + 4;
+                            Crossing_Paths[t].pair_index.push_back(ct); 
+                            job.src_dst_pairs_m[i].channels.push_back(t);
+
+                            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                            if ( current < array_size ) {
+                            wrap_around_y = false;
+                            current = current + array_size*(array_size -1);
+                            } else current -= array_size;
+                            hops++;
+                            delta_y++;
+                            }
+                    }
+                    
+                    if ( delta_x != 0 || delta_y != 0 ){
+                            cerr << "Routing Error " << endl;
+                            exit (1);
+                    }        
+            }      
+
+            // switch->host 
+            t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
+            // t = (src%2==1 && Topology==1) ? 
+            //                 Vch*dst*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num
+            //                 : Vch*dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
+            Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+            job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID   
+
+            Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+            job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+            //ct++;	
+
+        }
+   }
+   
+   if (Topology == 2){ // fat-tree
+
+    for (int i=0; i<job.src_dst_pairs_m.size(); i++){
+        h_src = job.src_dst_pairs_m[i].h_src;
+        h_dst = job.src_dst_pairs_m[i].h_dst;
+        src = job.src_dst_pairs_m[i].src;
+        dst = job.src_dst_pairs_m[i].dst;
+        ct = job.src_dst_pairs_m[i].pair_id;
+
+        int current = h_src;
+
+        //#######################//
+        // switch port:0 UP, 1 DOWN1(or localhost), 2 DOWN2, 3 DOWN3, 4 DOWN4 //
+        //#######################//
+        
+        // channel --> switch ID + output port
+        //Pair tmp_pair(src,dst,h_src,h_dst);  
+        //pairs.push_back(tmp_pair);
+        Crossing_Paths[current*PORT].pair_index.push_back(ct);
+        job.src_dst_pairs_m[i].channels.push_back(current*PORT);        
+        //hops++;
+
+        //pairs[ct].pair_id = ct; 
+        
+        current = node_num + current/Host_Num;
+
+        while ( current != dst ){ 
+                int t;
+                // root switch
+                if ( current == node_num + node_num/Host_Num + node_num/pow(Host_Num,2)){
+                t = current * PORT + dst/(int)pow(Host_Num,2)+1;
+                current = current - Host_Num + dst/(int)pow(Host_Num,2);
+                // middle layer switch
+                } else if ( current >= node_num + node_num/Host_Num){
+                if ( current-node_num-node_num/Host_Num != dst/(int)pow(Host_Num,2)){
+                t = current * PORT + 0;
+                current = node_num + node_num/Host_Num + node_num/(int)pow(Host_Num,2);
+                } else {
+                t = current * PORT + (dst/Host_Num)%Host_Num + 1;
+                current = node_num + dst/Host_Num;
+                }
+                // low layer switch
+                } else if ( current >= node_num){
+                if ( current-node_num != dst/Host_Num){
+                t = current * PORT + 0;
+                current = node_num + current/Host_Num;
+                } else {
+                t = current * PORT + dst%Host_Num+1;
+                current = dst;
+                }
+                }
+                else { //host->switch
+	        }      
+                Crossing_Paths[t].pair_index.push_back(ct);
+                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                hops++;
+        }
+
+        job.src_dst_pairs_m[i].hops = hops-before_hops;  
+        before_hops = hops;
+
+        if ( current != dst ){
+                cerr << "Routing Error " << endl;
+                exit (1);
+        }
+        //ct++;
+
+    }	
+   }
+   
+   
+   if (Topology == 3) //fully-connected
+   {
+    for (int i=0; i<job.src_dst_pairs_m.size(); i++){
+        h_src = job.src_dst_pairs_m[i].h_src;
+        h_dst = job.src_dst_pairs_m[i].h_dst;
+        src = job.src_dst_pairs_m[i].src;
+        dst = job.src_dst_pairs_m[i].dst;
+        ct = job.src_dst_pairs_m[i].pair_id;
+
+        //#######################//
+        // switch port <-- destination switch ID
+        // localhost port = switch ID
+        //#######################//
+
+        // channel <-- node pair ID, node pair <-- channel ID 
+        //Pair tmp_pair(src,dst,h_src,h_dst);  
+        //pairs.push_back(tmp_pair);
+
+        // localhost(h_src) --> src
+        //int t = src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
+        //Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        //pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
+        //pairs[ct].pair_id = ct; 
+        job.src_dst_pairs_m[i].hops = 1;
+
+        // src --> dst
+        int t = src * (degree+1+2*Host_Num) + dst; // output port = destination switch ID
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        job.src_dst_pairs_m[i].channels.push_back(t);  // node pair <-- channel ID 
+
+        Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+        job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+        hops++;      
+
+        // dst --> localhost(h_dst)
+        //t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
+        //Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        //Crossing_Paths[dst*(degree+1+2*Host_Num)+dst].pair_index.push_back(ct); 
+        //pairs[ct].channels.push_back(t); // node pair <-- channel ID  
+        //t = dst*(degree+1+2*Host_Num)+dst;   
+        //pairs[ct].channels.push_back(t); // output port <-- destination switch ID
+
+        //ct++;
+    }	
+   }
+
+      
+   if (Topology == 4){ // full mesh connected circles (FCC)
+        
+        // switch topo initiation
+        // switch n <--> switch 3-n, port p <--> port 11-p
+        // 0:not used, 1:left, 2:right, 3-8:inter-group
+        for(int g=0; g<groups; g++){
+                for(int s=0; s<group_switch_num; s++){
+                        int sw = g*group_switch_num+s;
+                        if(s==0) Switch_Topo[sw*(degree+1+2*Host_Num)+1] = sw+(group_switch_num-1);
+                        else Switch_Topo[sw*(degree+1+2*Host_Num)+1] = sw-1;
+                        if(s==group_switch_num-1) Switch_Topo[sw*(degree+1+2*Host_Num)+2] = sw-(group_switch_num-1);
+                        else Switch_Topo[sw*(degree+1+2*Host_Num)+2] = sw+1;
+                        for(int j=3; j<=degree; j++){
+                                Switch_Topo[sw*(degree+1+2*Host_Num)+j] = ((g+s*inter_group+j-3+1)%groups)*group_switch_num+(group_switch_num-1-s);
+                        }
+                }
+        }
+
+    for (int i=0; i<job.src_dst_pairs_m.size(); i++){
+        h_src = job.src_dst_pairs_m[i].h_src;
+        h_dst = job.src_dst_pairs_m[i].h_dst;
+        src = job.src_dst_pairs_m[i].src;
+        dst = job.src_dst_pairs_m[i].dst;
+        ct = job.src_dst_pairs_m[i].pair_id;
+
+        int current = src;   
+
+        //#######################//
+        // switch port: 0 localhost, 1 left, 2 right, 3-8 inter-group
+        // localhost port = 0
+        //#######################//
+
+        // channel <-- node pair ID, node pair <-- channel ID 
+        //Pair tmp_pair(src,dst,h_src,h_dst);  
+        //pairs.push_back(tmp_pair);
+
+        // localhost(h_src) --> src
+        int t = src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        job.src_dst_pairs_m[i].channels.push_back(t);  // node pair <-- channel ID  
+
+        Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+        job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);        
+
+        //pairs[ct].pair_id = ct; 
+
+        // src --> dst   
+        // group #
+        int src_group = src/group_switch_num;
+        int dst_group = dst/group_switch_num;
+        // switch offset in a group
+        int src_offset = src%group_switch_num;
+        int dst_offset = dst%group_switch_num;
+
+        int diff_group = dst_group-src_group;
+        // gateway for inter-group
+        int src_gw_offset = -1;
+        int dst_gw_offset = -1;
+        int src_gw = -1;
+        int dst_gw = -1;
+        int src_gw_port = -1;
+        int dst_gw_port = -1;
+        if (diff_group==0){ //intra-group routing
+                if(dst_offset-src_offset==0) continue;
+                else if(dst_offset-src_offset>group_switch_num/2 || (src_offset-dst_offset>0 && src_offset-dst_offset<group_switch_num/2)){
+                        while ( current != dst ){
+                                t = current*(degree+1+2*Host_Num)+1; //backward
+                                current = current - 1;
+                                if(current<src_group*group_switch_num) current = current+group_switch_num;
+                                Crossing_Paths[t].pair_index.push_back(ct);
+                                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                                hops++;
+                        }
+                }
+                else{
+                        while ( current != dst ){
+                                t = current*(degree+1+2*Host_Num)+2; //forward
+                                current = current + 1;
+                                if(current>=(src_group+1)*group_switch_num) current = current-group_switch_num;
+                                Crossing_Paths[t].pair_index.push_back(ct);
+                                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                                hops++;
+                        }
+                }
+        }
+        else { //intra-src-group routing + inter-group routing + intra-dst-group routing
+                if(diff_group<0) diff_group+=groups; 
+                src_gw_offset = (diff_group-1)/inter_group;
+                dst_gw_offset = (group_switch_num-1)-src_gw_offset;
+                src_gw = src_group*group_switch_num+src_gw_offset;
+                dst_gw = dst_group*group_switch_num+dst_gw_offset;
+                src_gw_port = (diff_group-1)%inter_group+3;
+                dst_gw_port = (3+degree)-src_gw_port;
+
+                //intra-src-group routing
+                if(src_gw_offset-src_offset==0) ;
+                else if(src_gw_offset-src_offset>group_switch_num/2 || (src_offset-src_gw_offset>0 && src_offset-src_gw_offset<group_switch_num/2)){
+                        while ( current != src_gw ){
+                                t = current*(degree+1+2*Host_Num)+1; //backward
+                                current = current - 1;
+                                if(current<src_group*group_switch_num) current = current+group_switch_num;
+                                Crossing_Paths[t].pair_index.push_back(ct);
+                                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                                hops++;
+                        }
+                }
+                else{
+                        while ( current != src_gw ){
+                                t = current*(degree+1+2*Host_Num)+2; //forward
+                                current = current + 1;
+                                if(current>=(src_group+1)*group_switch_num) current = current-group_switch_num;
+                                Crossing_Paths[t].pair_index.push_back(ct);
+                                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                                hops++;
+                        }
+                }
+
+                //inter-src-dst-group routing
+                t = current*(degree+1+2*Host_Num)+src_gw_port;
+                current = dst_gw;
+                Crossing_Paths[t].pair_index.push_back(ct);
+                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                hops++;
+
+                //intra-dst-group routing
+                if(dst_offset-dst_gw_offset==0) ;
+                else if(dst_offset-dst_gw_offset>group_switch_num/2 || (dst_gw_offset-dst_offset>0 && dst_gw_offset-dst_offset<group_switch_num/2)){
+                        while ( current != dst ){
+                                t = current*(degree+1+2*Host_Num)+1; //backward
+                                current = current - 1;
+                                if(current<dst_group*group_switch_num) current = current+group_switch_num;
+                                Crossing_Paths[t].pair_index.push_back(ct);
+                                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                                hops++;
+                        }
+                }
+                else{
+                        while ( current != dst ){
+                                t = current*(degree+1+2*Host_Num)+2; //forward
+                                current = current + 1;
+                                if(current>=(dst_group+1)*group_switch_num) current = current-group_switch_num;
+                                Crossing_Paths[t].pair_index.push_back(ct);
+                                job.src_dst_pairs_m[i].channels.push_back(t);
+
+                                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);
+
+                                hops++;
+                        }
+                }                
+        }
+
+        // dst --> localhost(h_dst)
+        t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID  
+
+        Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+        job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);        
+
+        job.src_dst_pairs_m[i].hops = hops-before_hops;  
+        before_hops = hops;
+
+        if ( current != dst ){
+                cerr << "Routing Error " << endl;
+                exit (1);
+        }
+        //ct++;
+    }
+   }
+
+   if (Topology == 5){ // topology file
+        
+        // switch topo initiation (sw-port), store ports described in topology files
+        // 0 - (switch_num-1) --> port (except itself); switch_num, (switch_num+1) --> not used
+        for (int i=0; i<Switch_Topo.size(); i++){
+                Switch_Topo[i] = -1;
+        }
+        for (int i=0; i<switch_num; i++){
+                for (int j=0; j<topo_file.size(); j=j+2){
+                        if (topo_sws_uni[i] == topo_file[j]){
+                                int connect_sw = -1;
+                                int connect_port = -1;
+                                if (j%4 == 0){
+                                        connect_sw = topo_file[j+2];
+                                        connect_port = topo_file[j+1];
+                                }
+                                else if (j%4 == 2){
+                                        connect_sw = topo_file[j-2];
+                                        connect_port = topo_file[j+1];
+                                }
+                                for (int k=0; k<switch_num; k++){
+                                        if (topo_sws_uni[k] == connect_sw){
+                                                Switch_Topo[i*((switch_num-1)+1+2*Host_Num)+k] = connect_port;
+                                        }
+                                }
+                        }
+                }
+        }
+
+        // Number of vertices in the graph 
+        int V = switch_num;
+
+        // graph initialization
+        vector<int> graph(V*V);
+        for (int i=0; i<graph.size(); i++){
+                if (Switch_Topo[(i/V)*((switch_num-1)+1+2*Host_Num)+i%V] == -1){
+                        graph[i] = 0;
+                }
+                else {
+                        graph[i] = 1;
+                }
+        }
+
+        // dijkstra for each pair, store intermediate and dst sws (not including src sw)
+        vector< vector<int> > pair_path(V*V);
+        for (int i=0; i<V; i++){
+                 dijkstra(V, graph, i, pair_path); 
+        } 
+
+    for (int i=0; i<job.src_dst_pairs_m.size(); i++){
+        h_src = job.src_dst_pairs_m[i].h_src;
+        h_dst = job.src_dst_pairs_m[i].h_dst;
+        src = job.src_dst_pairs_m[i].src;
+        dst = job.src_dst_pairs_m[i].dst;
+        ct = job.src_dst_pairs_m[i].pair_id;
+
+        // channel <-- node pair ID, node pair <-- channel ID 
+        //Pair tmp_pair(src,dst,h_src,h_dst);  
+        //pairs.push_back(tmp_pair);
+
+        //pair path
+        int src_index = -1;
+        int dst_index = -1;
+        for (int i = 0; i < switch_num; i++){
+                if (topo_sws_uni[i] == src){
+                        src_index = i;
+                }
+                if (topo_sws_uni[i] == dst){
+                        dst_index = i;
+                } 
+                if (src_index != -1 && dst_index != -1) break;               
+        }
+        if (src_index == -1 || dst_index == -1) cout << "Error: src/dst number is wrong" << endl;
+
+        // localhost(h_src) --> src
+        int t = src_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+h_src%Host_Num;
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        job.src_dst_pairs_m[i].channels.push_back(t);  // node pair <-- channel ID   
+
+        Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+        job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);        
+
+        //pairs[ct].pair_id = ct; 
+        job.src_dst_pairs_m[i].hops = pair_path[src_index*V+dst_index].size()+1;
+        hops += job.src_dst_pairs_m[i].hops;
+
+        // src --> dst
+        for (int i=0; i<pair_path[src_index*V+dst_index].size(); i++){
+                if (i==0){
+                        t = src_index*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
+                }
+                else {
+                        t = pair_path[src_index*V+dst_index][i-1]*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
+                }
+                Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+                job.src_dst_pairs_m[i].channels.push_back(t);  // node pair <-- channel ID 
+
+                Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+                job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);                
+
+        }
+
+        // dst --> localhost(h_dst)
+        t = dst_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+Host_Num+h_dst%Host_Num;
+        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
+        job.src_dst_pairs_m[i].channels.push_back(t); // node pair <-- channel ID  
+
+        Crossing_Paths[t].flow_index.push_back(job.job_id*1000+job.src_dst_pairs_m[i].flow_id);
+        job.flows[job.src_dst_pairs_m[i].flow_id].channels.push_back(t);        
+
+        //ct++;
+    } 
+   }
+}
+
+void calc_slots(int ports, vector<Cross_Paths> & Crossing_Paths, Job & job, vector<Job> & all_jobs, int & max_cp, int & max_cp_dst, int & max_cp_dst_t){
+
+    // delete duplicate flow id in channel
+    for (int i = 0; i < ports; i++){
+            vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+i;
+            sort(elem->flow_index.begin(), elem->flow_index.end());
+            elem->flow_index.erase(unique(elem->flow_index.begin(), elem->flow_index.end()), elem->flow_index.end());
+    }
+
+    // delete duplicate channel id in flow
+    for (int i = 0; i < job.flows.size(); i++){
+            vector<Flow>::iterator elem = job.flows.begin()+i;
+            sort(elem->channels.begin(), elem->channels.end());
+            elem->channels.erase(unique(elem->channels.begin(), elem->channels.end()), elem->channels.end());           
+    }
+
+   max_cp = 0;
+   max_cp_dst = 0; // number of dst-based renewable labels
+   // calculate number of dst-based renewable label
+   max_cp_dst_t = 0;
+
+    for (int j = 0; j < ports; j++ ){ 
+            vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
+            if (elem->flow_index.size() > max_cp) max_cp = elem->flow_index.size();
+            unsigned int p_ct = 0;
+            while ( p_ct < elem->flow_index.size() ){
+                    int u = elem->flow_index[p_ct]; 
+                    bool is_duplicate = false; //check if there is a same destination
+                    unsigned int p_ct_t = 0;
+                    while ( p_ct_t < p_ct ){
+                            int v = elem->flow_index[p_ct_t]; 
+                            for (int m = 0; m < all_jobs[u/1000].src_dst_pairs_m.size(); m++){
+                                if (all_jobs[u/1000].src_dst_pairs_m[m].flow_id == u%1000){
+                                    for (int n = 0; n < all_jobs[v/1000].src_dst_pairs_m.size(); n++){
+                                        if (all_jobs[v/1000].src_dst_pairs_m[n].flow_id == v%1000){
+                                            if (all_jobs[u/1000].src_dst_pairs_m[m].h_dst == all_jobs[v/1000].src_dst_pairs_m[n].h_dst){
+                                                    is_duplicate = true;
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                    if (is_duplicate == true) break;
+                                }
+                            }
+                            if (is_duplicate == true) break;
+                            p_ct_t++;
+                    }
+                    if (!is_duplicate) max_cp_dst_t++;
+                    p_ct++;
+            }
+            if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
+            max_cp_dst_t = 0;
+    }
+    cout << " === Max. number of slots (w/o update) [FLOW] ===" << endl << max_cp_dst << endl;	
+    cout << " === Max. number of slots (w/ update) [FLOW] ===" << endl << max_cp << endl;
+}
+
+
+// ########################################## //
+// ##############   PHASE 2   ############### //
+// ##  Slot #       ## //
+// ########################################## //
+void alloc_slot(Job & job, vector<Cross_Paths> & Crossing_Paths, bool path_based, int & max_id){
+    max_id = 0;
+    for (int i=0; i<job.flows.size(); i++){
+        
+        // local IDs are assigned
+        unsigned int path_ct = 0; 
+        while ( path_ct < job.flows.size() ){   
+            // check if IDs are assigned
+            bool valid = true;
+
+            for (int n=0; n<job.src_dst_pairs_m.size(); n++){
+                if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
+                    if (job.src_dst_pairs_m[n].Valid == false){
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+
+            if ( valid == true ) {path_ct++; continue;}
+            // ID is assigned from 0
+            int id_tmp = 0;
+            bool NG_ID = false;
+                    
+            NEXT_ID_FLOW:
+                    // ID is used or not
+                    unsigned int s_ct = 0; // channel
+                    while ( s_ct < job.flows[path_ct].channels.size() && !NG_ID ){
+                        int i = job.flows[path_ct].channels[s_ct];
+                        vector<int>::iterator find_ptr;
+                        find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
+                        if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
+                        if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
+                            int tmp = 0;
+                            while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
+                            NG_ID = true; 
+                            for (int j=0; j<job.src_dst_pairs_m.size(); j++){
+                                if (job.src_dst_pairs_m[j].flow_id == job.flows[path_ct].id){
+                                    if (job.src_dst_pairs_m[j].h_dst == Crossing_Paths[i].assigned_dst_list[tmp]){
+                                            NG_ID = false;
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        s_ct++;
+                    }
+                    if (NG_ID){
+                    id_tmp++; NG_ID = false; goto NEXT_ID_FLOW;
+                    }
+                    job.flows[path_ct].ID = id_tmp;
+
+                    unsigned int a_ct = 0;
+                    while ( a_ct < job.flows[path_ct].channels.size() ){
+                            int j = job.flows[path_ct].channels[a_ct];
+                            Crossing_Paths[j].assigned_list.push_back(id_tmp); 
+                            for (int n=0; n<job.src_dst_pairs_m.size(); n++){
+                                if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
+                                    Crossing_Paths[j].assigned_dst_list.push_back(job.src_dst_pairs_m[n].h_dst);
+                                }
+                            }                                                               	
+                            a_ct++; 
+                    }
+
+                    for (int n=0; n<job.src_dst_pairs_m.size(); n++){
+                        if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
+                            job.src_dst_pairs_m[n].Valid = true;
+                        }
+                    }
+                                  	                       	    
+                    if (max_id <= id_tmp) max_id = id_tmp + 1; 
+
+                    path_ct++;
+        }
+        //elem->Valid = true;
+
+    }
+}
+
 //dispatch jobs (random)
-void dispatch_random(vector<int> & sys, vector<Job> & queue, vector<Job> & all_jobs, int topo, int hosts){
+void dispatch_random(vector<int> & sys, vector<Job> & queue, vector<Job> & all_jobs, int topo, int switch_num, int hosts, int degree, vector<Cross_Paths> & Crossing_Paths, int dimension, int array_size, int & hops, int & before_hops, int PORT, int node_num,
+                        int groups, int group_switch_num, vector<int> & Switch_Topo, int inter_group, vector<int> topo_file, vector<int> topo_sws_uni,
+                        int & src, int & dst, int & h_src, int & h_dst, int & ct, int ports, bool path_based, int & max_id, int & max_cp, int & max_cp_dst, int & max_cp_dst_t){
         vector<int> ava_nodes;
         for (int i=0; i<sys.size(); i++){
                 if(sys[i] == 0){ //available
@@ -1667,7 +2822,13 @@ void dispatch_random(vector<int> & sys, vector<Job> & queue, vector<Job> & all_j
                                                         all_jobs[j].nodes.push_back(ava_nodes[n]);
                                                 } 
                                                 all_jobs[j].src_dst_pairs_m = src_dst_pairs_map(all_jobs[j].src_dst_pairs, all_jobs[j].nodes, topo, hosts);
-                                                //todo
+                                                
+                                                route_job(topo, all_jobs[j], degree, switch_num, hosts, Crossing_Paths, dimension, array_size, hops, before_hops, PORT, node_num, 
+                                                            groups, group_switch_num, Switch_Topo, inter_group, topo_file, topo_sws_uni, 
+                                                            src, dst, h_src, h_dst, ct);
+                                                calc_slots(ports, Crossing_Paths, all_jobs[j], all_jobs, max_cp, max_cp_dst, max_cp_dst_t);
+                                                alloc_slot(all_jobs[j], Crossing_Paths, path_based, max_id);
+
                                                 thread rn{release_nodes, all_jobs[j], ref(sys)};
                                                 rn.detach();  
                                                 queue.erase(queue.begin()); 
@@ -1982,6 +3143,17 @@ int main(int argc, char *argv[])
    thread cs{check_state, ref(sys), ref(queue), ref(all_submitted), ref(all_finished)};
    cs.detach();   
 
+   //int max_cp = max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size();	
+   int max_cp = 0;
+   int max_cp_dst = 0; // number of dst-based renewable labels
+   // calculate number of dst-based renewable label
+   int max_cp_dst_t = 0;
+
+   int max_id = 0;
+   int default_slot = 8;
+
+   vector<int>::iterator find_ptr;
+
    //dispatch jobs
    while(true){
         if(queue.size() > 0){
@@ -1991,7 +3163,24 @@ int main(int argc, char *argv[])
                         //continue;
                 }
                 else{
-                        dispatch_random(sys, queue, all_jobs, Topology, Host_Num);
+                        dispatch_random(sys, queue, all_jobs, Topology, switch_num, Host_Num, degree, Crossing_Paths, dimension, array_size, hops, before_hops, PORT, node_num,
+                        groups, group_switch_num, Switch_Topo, inter_group, topo_file, topo_sws_uni,
+                        src, dst, h_src, h_dst, ct, ports, path_based, max_id, max_cp, max_cp_dst, max_cp_dst_t);
+
+                        if (Topology == 0 || Topology == 1) // mesh or torus
+                        show_paths(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot);     
+                                
+                        if (Topology == 2) // fat-tree
+                        show_paths_tree(Crossing_Paths, ct, node_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, PORT, default_slot);
+                        
+                        if (Topology == 3) // fully-connected
+                        show_paths_fullyconnected(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot); 
+
+                        if (Topology == 4) // full mesh connected circles (FCC)
+                        show_paths_fcc(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot);  
+
+                        if (Topology == 5) // topology file
+                        show_paths_tf(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, Switch_Topo, topo_sws_uni, default_slot);                          
                 }
         }
         else if(all_submitted == true){
@@ -2005,1115 +3194,6 @@ int main(int argc, char *argv[])
                 break;  
         }
    }
-
-   // ########################################## //
-   // ##############   PHASE 1   ############### //
-   // ##        routing       ## //
-   // ########################################## //
-
-   if (Topology == 0 || Topology == 1) //mesh or torus
-   {
-        while ( cin >> h_src){	
-        cin >> h_dst;
-                src = h_src/Host_Num;
-                dst = h_dst/Host_Num;
-
-        bool wrap_around_x = false;
-        bool wrap_around_y = false;
-        bool wrap_around_z = false; //3D
-        bool wrap_around_a = false; //4D
-
-        //#######################//
-        // e.g. 3D
-        // (switch port: 0 (not used), 1 +x, 2 -x, 3 -y, 4 +y, 5 -z, 6 +z, 7 localhost->switch, 8 switch-> localhost)
-        // switch port:1 +x, 2 -x, 3 +y, 4 -y, 5 -z, 6 +z,
-                // from 7 to (6+Host_Num) localhost->switch,
-                // from (7+Host_Num) to (6+Host_Num*2) switch-> localhost
-        //#######################//
-
-        // channel <-- node pair ID, node pair <-- channel ID 
-        Pair tmp_pair(src,dst,h_src,h_dst);  
-        pairs.push_back(tmp_pair);
-        int t = src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
-        // int t = (dst%2==1 && Topology==1) ? 
-        //         Vch*src*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+h_src%Host_Num
-        //         : Vch*src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t);  // node pair <-- channel ID   
-
-        pairs[ct].pair_id = ct; 
-        int delta_x, delta_y, delta_z, delta_a, current, src_xy, dst_xy, src_xyz, dst_xyz; // 2D, 3D, 4D
-        if (dimension == 2 || dimension == 1){ //2D, 1D
-                src_xy = src; 
-                dst_xy = dst; 
-        }
-        if (dimension == 3){ //3D
-                src_xy = src%int(pow(array_size,2)); 
-                dst_xy = dst%int(pow(array_size,2)); 
-        }
-        if (dimension == 4){ //4D
-                src_xyz = src%int(pow(array_size,3)); 
-                dst_xyz = dst%int(pow(array_size,3)); 
-                src_xy = src_xyz%int(pow(array_size,2)); 
-                dst_xy = dst_xyz%int(pow(array_size,2));   
-        }
-        switch (Topology){
-        case 0: //mesh
-                //  if (dimension == 2){ //2D
-                //         delta_x = dst%array_size - src%array_size;
-                //         delta_y = dst/array_size - src/array_size;
-                //  }
-                if (dimension == 3){ //3D
-                        delta_z = dst/int(pow(array_size,2)) - src/int(pow(array_size,2)); 
-                        // delta_x = dst_xy%array_size - src_xy%array_size; 
-                        // delta_y = dst_xy/array_size - src_xy/array_size; 
-                }
-                if (dimension == 4){ //4D
-                delta_a = dst/int(pow(array_size,3)) - src/int(pow(array_size,3));
-                delta_z = dst_xyz/int(pow(array_size,2)) - src_xyz/int(pow(array_size,2)); 
-                //        delta_x = dst_xy%array_size - src_xy%array_size; 
-                //        delta_y = dst_xy/array_size - src_xy/array_size; 
-                }
-                //4D, 3D, 2D, 1D(delta_y=0)
-                delta_x = dst_xy%array_size - src_xy%array_size; 
-                delta_y = dst_xy/array_size - src_xy/array_size; 
-                current = src; 
-                break;
-
-        case 1: // torus
-                if (dimension == 4){ //4D
-                        delta_a = dst/int(pow(array_size,3)) - src/int(pow(array_size,3));
-                        if ( delta_a < 0 && abs(delta_a) > array_size/2 ) {
-                        //delta_a = -( delta_a + array_size/2);
-                        delta_a = delta_a + array_size;
-                                wrap_around_a = true;		
-                        } else if ( delta_a > 0 && abs(delta_a) > array_size/2 ) {
-                        //delta_a = -( delta_a - array_size/2);
-                        delta_a = delta_a - array_size;
-                                wrap_around_a = true;		
-                        }
-                        delta_z = dst_xyz/int(pow(array_size,2)) - src_xyz/int(pow(array_size,2));
-                        if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
-                        //delta_z = -( delta_z + array_size/2);
-                        delta_z = delta_z + array_size;
-                                wrap_around_z = true;		
-                        } else if ( delta_z > 0 && abs(delta_z) > array_size/2 ) {
-                        //delta_z = -( delta_z - array_size/2);
-                        delta_z = delta_z - array_size;
-                                wrap_around_z = true;		
-                        }
-                }
-                if (dimension == 3){ //3D
-                        delta_z = dst/int(pow(array_size,2)) - src/int(pow(array_size,2));
-                        if ( delta_z < 0 && abs(delta_z) > array_size/2 ) {
-                        //delta_z = -( delta_z + array_size/2);
-                        delta_z = delta_z + array_size;
-                                wrap_around_z = true;		
-                        } else if ( delta_z > 0 && abs(delta_z) > array_size/2 ) {
-                        //delta_z = -( delta_z - array_size/2);
-                        delta_z = delta_z - array_size;
-                                wrap_around_z = true;		
-                        }
-                }
-                //4D, 3D, 2D, 1D(delta_y=0)
-                delta_x = dst_xy%array_size - src_xy%array_size;
-                if ( delta_x < 0 && abs(delta_x) > array_size/2 ) {
-                //delta_x = -( delta_x + array_size/2);
-                delta_x = delta_x + array_size;
-                        wrap_around_x = true;		
-                } else if ( delta_x > 0 && abs(delta_x) > array_size/2 ) {
-                //delta_x = -( delta_x - array_size/2);
-                delta_x = delta_x - array_size;
-                        wrap_around_x = true;		
-                }
-                delta_y = dst_xy/array_size - src_xy/array_size;
-                if ( delta_y < 0 && abs(delta_y) > array_size/2 ) {
-                //delta_y = -( delta_y + array_size/2);
-                delta_y = delta_y + array_size;
-                        wrap_around_y = true;		
-                } else if ( delta_y > 0 && abs(delta_y) > array_size/2 ) {
-                //delta_y = -( delta_y - array_size/2);
-                delta_y = delta_y - array_size;
-                        wrap_around_y = true;		
-                }
-                current = src; 
-                break;
-        default:
-                cerr << "Please select -t0, or -t1 option" << endl;
-                exit(1);
-                break;
-        }
-
-        if (dimension == 4) //4D
-        {
-                pairs[ct].hops = abs(delta_x) + abs(delta_y)+ abs(delta_z) + abs(delta_a);
-        }
-        if (dimension == 3) //3D
-        {
-                pairs[ct].hops = abs(delta_x) + abs(delta_y)+ abs(delta_z);
-        }
-        if (dimension == 2 || dimension == 1) //2D, 1D(delta_y=0)
-        {
-                pairs[ct].hops = abs(delta_x) + abs(delta_y);
-        }
-
-        if (dimension == 4){ //4D routing
-                if (delta_a > 0){
-                        while ( delta_a != 0 ){  //-a
-                        int t = current * (degree+1+2*Host_Num) + 7;
-                        // int t = (wrap_around_a) ? Vch*current*(degree+1+2*Host_Num)+7+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 7;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        //if ( current % (array_size*array_size) == array_size-1) { 
-                        if ( current >= array_size*array_size*array_size*(array_size-1)) {
-                        wrap_around_a = false;
-                        current = current - (array_size -1)*array_size*array_size*array_size;
-                        } else current += array_size*array_size*array_size; 
-                        delta_a--;
-                        hops++;
-                        }
-                } else if (delta_a < 0){
-                        while ( delta_a != 0 ){  //+a
-                        int t = current * (degree+1+2*Host_Num) + 8;
-                        // int t = (wrap_around_a) ? Vch*current*(degree+1+2*Host_Num)+8+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 8;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        //if ( current % (array_size*array_size) == 0 ) { 
-                        if ( current < array_size*array_size*array_size) {
-                        wrap_around_a = false;
-                        current = current + (array_size -1)*array_size*array_size*array_size;
-                        } else current -= array_size*array_size*array_size;
-                        hops++;
-                        delta_a++;
-                        }
-                }
-                
-                if (delta_a != 0){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                } 
-
-                if (delta_z > 0){
-                        while ( delta_z != 0 ){ // -z
-                        int t = current * (degree+1+2*Host_Num) + 5;
-                        // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+5+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 5;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        //if ( current % (array_size*array_size) == array_size-1) { 
-                        if ( (current%(array_size*array_size*array_size)) >= array_size*array_size*(array_size-1)) { 
-                        wrap_around_z = false;
-                        current = current - (array_size -1)*array_size*array_size;
-                        } else current += array_size*array_size; 
-                        delta_z--;
-                        hops++;
-                        }
-                } else if (delta_z < 0){
-                        while ( delta_z != 0 ){ // +z
-                        int t = current * (degree+1+2*Host_Num) + 6;
-                        // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+6+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 6;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        //if ( current % (array_size*array_size) == 0 ) { 
-                        if ( (current%(array_size*array_size*array_size)) < array_size*array_size) {
-                        wrap_around_z = false;
-                        current = current + (array_size -1)*array_size*array_size;
-                        } else current -= array_size*array_size;
-                        hops++;
-                        delta_z++;
-                        }
-                }
-                
-                if (delta_z != 0){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }
-
-                // X 
-                if (delta_x > 0){
-                        while ( delta_x != 0 ){ // +x
-                        int t = current * (degree+1+2*Host_Num) + 1;
-                        // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+1+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 1;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) % array_size == array_size-1) { 
-                        wrap_around_x = false;
-                        current = current - (array_size -1);
-                        } else current++; 
-                        delta_x--;
-                        hops++;
-                        }
-                } else if (delta_x < 0){
-                        while ( delta_x != 0 ){ // -x
-                        int t = current * (degree+1+2*Host_Num) + 2;
-                        // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+2+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 2;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) % array_size == 0 ) { 
-                        wrap_around_x = false;
-                        current = current + (array_size - 1);
-                        } else current--;
-                        hops++;
-                        delta_x++;
-                        }
-                }
-                
-                if (delta_x != 0){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }
-
-                // Y 
-                if (delta_y > 0){
-                        while ( delta_y != 0 ){ // -y
-                        int t = current * (degree+1+2*Host_Num) + 3;
-                        // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 3;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) >= array_size*(array_size-1) ){ 
-                        wrap_around_y = false;
-                        current = current - array_size*(array_size -1);
-                        } else current += array_size;
-                        hops++;
-                        delta_y--;
-                        }
-                } else if (delta_y < 0){
-                        while ( delta_y != 0 ){ // +y
-                        int t = current * (degree+1+2*Host_Num) + 4;
-                        // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+4+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 4;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( ((current%(array_size*array_size*array_size)) % (array_size*array_size)) < array_size ) {
-                        wrap_around_y = false;
-                        current = current + array_size*(array_size -1);
-                        } else current -= array_size;
-                        hops++;
-                        delta_y++;
-                        }
-                }
-                
-                if ( delta_x != 0 || delta_y != 0 || delta_z != 0 || delta_a != 0){ 
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }         
-        }
-        
-        if (dimension == 3){ //3D routing
-                if (delta_z > 0){
-                        while ( delta_z != 0 ){ // -z
-                        int t = current * (degree+1+2*Host_Num) + 5;
-                        // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+5+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 5;
-                        Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
-                        pairs[ct].channels.push_back(t); // node pair <-- channel ID
-                        //if ( current % (array_size*array_size) == array_size-1) { 
-                        if ( current >= array_size*array_size*(array_size-1)) {
-                        wrap_around_z = false;
-                        current = current - (array_size -1)*array_size*array_size;
-                        } else current += array_size*array_size; 
-                        delta_z--;
-                        hops++;
-                        }
-                } else if (delta_z < 0){
-                        while ( delta_z != 0 ){ // +z
-                        int t = current * (degree+1+2*Host_Num) + 6;
-                        // int t = (wrap_around_z) ? Vch*current*(degree+1+2*Host_Num)+6+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 6;
-                        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-                        pairs[ct].channels.push_back(t); // node pair <-- channel ID
-                        //if ( current % (array_size*array_size) == 0 ) { 
-                        if ( current < array_size*array_size) {
-                        wrap_around_z = false;
-                        current = current + (array_size -1)*array_size*array_size;
-                        } else current -= array_size*array_size;
-                        hops++;
-                        delta_z++;
-                        }
-                }
-                
-                if (delta_z != 0){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }
-
-                // X
-                if (delta_x > 0){
-                        while ( delta_x != 0 ){ // +x
-                        int t = current * (degree+1+2*Host_Num) + 1;
-                        // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+1+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 1;
-                        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-                        pairs[ct].channels.push_back(t); // node pair <-- channel ID
-                        if ( (current % (array_size*array_size)) % array_size == array_size-1) { 
-                        wrap_around_x = false;
-                        current = current - (array_size -1);
-                        } else current++; 
-                        delta_x--;
-                        hops++;
-                        }
-                } else if (delta_x < 0){
-                        while ( delta_x != 0 ){ // -x
-                        int t = current * (degree+1+2*Host_Num) + 2;
-                        // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+2+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 2;
-                        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-                        pairs[ct].channels.push_back(t); // node pair <-- channel ID
-                        if ( (current % (array_size*array_size)) % array_size == 0 ) { 
-                        wrap_around_x = false;
-                        current = current + (array_size - 1);
-                        } else current--;
-                        hops++;
-                        delta_x++;
-                        }
-                }
-                
-                // check X routing is finished 
-                if (delta_x != 0){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }
-
-                // Y 
-                if (delta_y > 0){
-                        while ( delta_y != 0 ){ // -y
-                        int t = current * (degree+1+2*Host_Num) + 3;
-                        // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 3;
-                        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-                        pairs[ct].channels.push_back(t); // node pair <-- channel ID
-                        if ( (current % (array_size*array_size)) >= array_size*(array_size-1) ){ 
-                        wrap_around_y = false;
-                        current = current - array_size*(array_size -1);
-                        } else current += array_size;
-                        hops++;
-                        delta_y--;
-                        }
-                } else if (delta_y < 0){
-                        while ( delta_y != 0 ){ // +y
-                        int t = current * (degree+1+2*Host_Num) + 4;
-                        // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+4+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 4;
-                        Crossing_Paths[t].pair_index.push_back(ct);  // channel <-- node pair ID
-                        pairs[ct].channels.push_back(t); // node pair <-- channel ID
-                        if ( (current % (array_size*array_size)) < array_size ) { 
-                        wrap_around_y = false;
-                        current = current + array_size*(array_size -1);
-                        } else current -= array_size;
-                        hops++;
-                        delta_y++;
-                        }
-                }
-                
-                // check if X,Y,Z routing are finished 
-                if ( delta_x != 0 || delta_y != 0 || delta_z != 0){ 
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }        
-        }
-
-        if (dimension == 2 || dimension == 1){ //2D routing, 1D routing (delta_y=0)
-                // X 
-                if (delta_x > 0){
-                        while ( delta_x != 0 ){ // +x
-                        int t = current * (degree+1+2*Host_Num) + 1;
-                        // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+1+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 1;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( current % array_size == array_size-1) {
-                        wrap_around_x = false;
-                        current = current - (array_size -1);
-                        } else current++; 
-                        delta_x--;
-                        hops++;
-                        }
-                } else if (delta_x < 0){
-                        while ( delta_x != 0 ){ // -x
-                        int t = current * (degree+1+2*Host_Num) + 2;
-                        // int t = (wrap_around_x) ? Vch*current*(degree+1+2*Host_Num)+2+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 2;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( current % array_size == 0 ) {
-                        wrap_around_x = false;
-                        current = current + (array_size - 1 );
-                        } else current--;
-                        hops++;
-                        delta_x++;
-                        }
-                }
-                
-                if (delta_x != 0){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }
-
-                // Y
-                if (delta_y > 0){
-                        while ( delta_y != 0 ){ // -y
-                        int t = current * (degree+1+2*Host_Num) + 3;
-                        // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+3+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 3;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( current >= array_size*(array_size-1) ){
-                        wrap_around_y = false;
-                        current = current - array_size*(array_size -1);
-                        } else current += array_size;
-                        hops++;
-                        delta_y--;
-                        }
-                } else if (delta_y < 0){
-                        while ( delta_y != 0 ){ // +y
-                        int t = current * (degree+1+2*Host_Num) + 4;
-                        // int t = (wrap_around_y) ? Vch*current*(degree+1+2*Host_Num)+4+(degree+1+2*Host_Num) :
-                        // Vch * current * (degree+1+2*Host_Num) + 4;
-                        Crossing_Paths[t].pair_index.push_back(ct); 
-                        pairs[ct].channels.push_back(t);
-                        if ( current < array_size ) {
-                        wrap_around_y = false;
-                        current = current + array_size*(array_size -1);
-                        } else current -= array_size;
-                        hops++;
-                        delta_y++;
-                        }
-                }
-                
-                if ( delta_x != 0 || delta_y != 0 ){
-                        cerr << "Routing Error " << endl;
-                        exit (1);
-                }        
-        }      
-
-        // switch->host 
-        t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
-        // t = (src%2==1 && Topology==1) ? 
-        //                 Vch*dst*(degree+1+2*Host_Num)+(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num
-        //                 : Vch*dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t); // node pair <-- channel ID   
-        ct++;	
-        }
-   }
-   
-   if (Topology == 2){ // fat-tree
-
-        while ( cin >> h_src){	
-        cin	>> h_dst;
-        int current = h_src;
-
-        src = h_src;
-        dst = h_dst;
-
-        //#######################//
-        // switch port:0 UP, 1 DOWN1(or localhost), 2 DOWN2, 3 DOWN3, 4 DOWN4 //
-        //#######################//
-        
-        // channel --> switch ID + output port
-        Pair tmp_pair(src,dst,h_src,h_dst);  
-        pairs.push_back(tmp_pair);
-        Crossing_Paths[current*PORT].pair_index.push_back(ct);
-        pairs[ct].channels.push_back(current*PORT);        
-        //hops++;
-
-        pairs[ct].pair_id = ct; 
-        
-        current = node_num + current/Host_Num;
-
-        while ( current != dst ){ 
-                int t;
-                // root switch
-                if ( current == node_num + node_num/Host_Num + node_num/pow(Host_Num,2)){
-                t = current * PORT + dst/(int)pow(Host_Num,2)+1;
-                current = current - Host_Num + dst/(int)pow(Host_Num,2);
-                // middle layer switch
-                } else if ( current >= node_num + node_num/Host_Num){
-                if ( current-node_num-node_num/Host_Num != dst/(int)pow(Host_Num,2)){
-                t = current * PORT + 0;
-                current = node_num + node_num/Host_Num + node_num/(int)pow(Host_Num,2);
-                } else {
-                t = current * PORT + (dst/Host_Num)%Host_Num + 1;
-                current = node_num + dst/Host_Num;
-                }
-                // low layer switch
-                } else if ( current >= node_num){
-                if ( current-node_num != dst/Host_Num){
-                t = current * PORT + 0;
-                current = node_num + current/Host_Num;
-                } else {
-                t = current * PORT + dst%Host_Num+1;
-                current = dst;
-                }
-                }
-                else { //host->switch
-	        }      
-                Crossing_Paths[t].pair_index.push_back(ct);
-                pairs[ct].channels.push_back(t);
-                hops++;
-        }
-
-        pairs[ct].hops = hops-before_hops;  
-        before_hops = hops;
-
-        if ( current != dst ){
-                cerr << "Routing Error " << endl;
-                exit (1);
-        }
-        ct++;	
-        }
-   }
-   
-   
-   if (Topology == 3) //fully-connected
-   {
-        while ( cin >> h_src){	
-        cin >> h_dst;
-                src = h_src/Host_Num;
-                dst = h_dst/Host_Num;
-
-        //#######################//
-        // switch port <-- destination switch ID
-        // localhost port = switch ID
-        //#######################//
-
-        // channel <-- node pair ID, node pair <-- channel ID 
-        Pair tmp_pair(src,dst,h_src,h_dst);  
-        pairs.push_back(tmp_pair);
-
-        // localhost(h_src) --> src
-        //int t = src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
-        //Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        //pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
-        pairs[ct].pair_id = ct; 
-        pairs[ct].hops = 1;
-
-        // src --> dst
-        int t = src * (degree+1+2*Host_Num) + dst; // output port = destination switch ID
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t);  // node pair <-- channel ID 
-        hops++;      
-
-        // dst --> localhost(h_dst)
-        //t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
-        //Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        //Crossing_Paths[dst*(degree+1+2*Host_Num)+dst].pair_index.push_back(ct); 
-        //pairs[ct].channels.push_back(t); // node pair <-- channel ID  
-        //t = dst*(degree+1+2*Host_Num)+dst;   
-        //pairs[ct].channels.push_back(t); // output port <-- destination switch ID
-
-        ct++;	
-        }
-   }
-
-      
-   if (Topology == 4){ // full mesh connected circles (FCC)
-        
-        // switch topo initiation
-        // switch n <--> switch 3-n, port p <--> port 11-p
-        // 0:not used, 1:left, 2:right, 3-8:inter-group
-        for(int g=0; g<groups; g++){
-                for(int s=0; s<group_switch_num; s++){
-                        int sw = g*group_switch_num+s;
-                        if(s==0) Switch_Topo[sw*(degree+1+2*Host_Num)+1] = sw+(group_switch_num-1);
-                        else Switch_Topo[sw*(degree+1+2*Host_Num)+1] = sw-1;
-                        if(s==group_switch_num-1) Switch_Topo[sw*(degree+1+2*Host_Num)+2] = sw-(group_switch_num-1);
-                        else Switch_Topo[sw*(degree+1+2*Host_Num)+2] = sw+1;
-                        for(int j=3; j<=degree; j++){
-                                Switch_Topo[sw*(degree+1+2*Host_Num)+j] = ((g+s*inter_group+j-3+1)%groups)*group_switch_num+(group_switch_num-1-s);
-                        }
-                }
-        }
-
-        while ( cin >> h_src){	
-        cin >> h_dst;
-                src = h_src/Host_Num;
-                dst = h_dst/Host_Num;
-
-        int current = src;   
-
-        //#######################//
-        // switch port: 0 localhost, 1 left, 2 right, 3-8 inter-group
-        // localhost port = 0
-        //#######################//
-
-        // channel <-- node pair ID, node pair <-- channel ID 
-        Pair tmp_pair(src,dst,h_src,h_dst);  
-        pairs.push_back(tmp_pair);
-
-        // localhost(h_src) --> src
-        int t = src*(degree+1+2*Host_Num)+degree+1+h_src%Host_Num;
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
-        pairs[ct].pair_id = ct; 
-
-        // src --> dst   
-        // group #
-        int src_group = src/group_switch_num;
-        int dst_group = dst/group_switch_num;
-        // switch offset in a group
-        int src_offset = src%group_switch_num;
-        int dst_offset = dst%group_switch_num;
-
-        int diff_group = dst_group-src_group;
-        // gateway for inter-group
-        int src_gw_offset = -1;
-        int dst_gw_offset = -1;
-        int src_gw = -1;
-        int dst_gw = -1;
-        int src_gw_port = -1;
-        int dst_gw_port = -1;
-        if (diff_group==0){ //intra-group routing
-                if(dst_offset-src_offset==0) continue;
-                else if(dst_offset-src_offset>group_switch_num/2 || (src_offset-dst_offset>0 && src_offset-dst_offset<group_switch_num/2)){
-                        while ( current != dst ){
-                                t = current*(degree+1+2*Host_Num)+1; //backward
-                                current = current - 1;
-                                if(current<src_group*group_switch_num) current = current+group_switch_num;
-                                Crossing_Paths[t].pair_index.push_back(ct);
-                                pairs[ct].channels.push_back(t);
-                                hops++;
-                        }
-                }
-                else{
-                        while ( current != dst ){
-                                t = current*(degree+1+2*Host_Num)+2; //forward
-                                current = current + 1;
-                                if(current>=(src_group+1)*group_switch_num) current = current-group_switch_num;
-                                Crossing_Paths[t].pair_index.push_back(ct);
-                                pairs[ct].channels.push_back(t);
-                                hops++;
-                        }
-                }
-        }
-        else { //intra-src-group routing + inter-group routing + intra-dst-group routing
-                if(diff_group<0) diff_group+=groups; 
-                src_gw_offset = (diff_group-1)/inter_group;
-                dst_gw_offset = (group_switch_num-1)-src_gw_offset;
-                src_gw = src_group*group_switch_num+src_gw_offset;
-                dst_gw = dst_group*group_switch_num+dst_gw_offset;
-                src_gw_port = (diff_group-1)%inter_group+3;
-                dst_gw_port = (3+degree)-src_gw_port;
-
-                //intra-src-group routing
-                if(src_gw_offset-src_offset==0) ;
-                else if(src_gw_offset-src_offset>group_switch_num/2 || (src_offset-src_gw_offset>0 && src_offset-src_gw_offset<group_switch_num/2)){
-                        while ( current != src_gw ){
-                                t = current*(degree+1+2*Host_Num)+1; //backward
-                                current = current - 1;
-                                if(current<src_group*group_switch_num) current = current+group_switch_num;
-                                Crossing_Paths[t].pair_index.push_back(ct);
-                                pairs[ct].channels.push_back(t);
-                                hops++;
-                        }
-                }
-                else{
-                        while ( current != src_gw ){
-                                t = current*(degree+1+2*Host_Num)+2; //forward
-                                current = current + 1;
-                                if(current>=(src_group+1)*group_switch_num) current = current-group_switch_num;
-                                Crossing_Paths[t].pair_index.push_back(ct);
-                                pairs[ct].channels.push_back(t);
-                                hops++;
-                        }
-                }
-
-                //inter-src-dst-group routing
-                t = current*(degree+1+2*Host_Num)+src_gw_port;
-                current = dst_gw;
-                Crossing_Paths[t].pair_index.push_back(ct);
-                pairs[ct].channels.push_back(t);
-                hops++;
-
-                //intra-dst-group routing
-                if(dst_offset-dst_gw_offset==0) ;
-                else if(dst_offset-dst_gw_offset>group_switch_num/2 || (dst_gw_offset-dst_offset>0 && dst_gw_offset-dst_offset<group_switch_num/2)){
-                        while ( current != dst ){
-                                t = current*(degree+1+2*Host_Num)+1; //backward
-                                current = current - 1;
-                                if(current<dst_group*group_switch_num) current = current+group_switch_num;
-                                Crossing_Paths[t].pair_index.push_back(ct);
-                                pairs[ct].channels.push_back(t);
-                                hops++;
-                        }
-                }
-                else{
-                        while ( current != dst ){
-                                t = current*(degree+1+2*Host_Num)+2; //forward
-                                current = current + 1;
-                                if(current>=(dst_group+1)*group_switch_num) current = current-group_switch_num;
-                                Crossing_Paths[t].pair_index.push_back(ct);
-                                pairs[ct].channels.push_back(t);
-                                hops++;
-                        }
-                }                
-        }
-
-        // dst --> localhost(h_dst)
-        t = dst*(degree+1+2*Host_Num)+degree+1+Host_Num+h_dst%Host_Num;
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t); // node pair <-- channel ID  
-
-        pairs[ct].hops = hops-before_hops;  
-        before_hops = hops;
-
-        if ( current != dst ){
-                cerr << "Routing Error " << endl;
-                exit (1);
-        }
-        ct++;
-
-        }
-   }
-
-   if (Topology == 5){ // topology file
-        
-        // switch topo initiation (sw-port), store ports described in topology files
-        // 0 - (switch_num-1) --> port (except itself); switch_num, (switch_num+1) --> not used
-        for (int i=0; i<Switch_Topo.size(); i++){
-                Switch_Topo[i] = -1;
-        }
-        for (int i=0; i<switch_num; i++){
-                for (int j=0; j<topo_file.size(); j=j+2){
-                        if (topo_sws_uni[i] == topo_file[j]){
-                                int connect_sw = -1;
-                                int connect_port = -1;
-                                if (j%4 == 0){
-                                        connect_sw = topo_file[j+2];
-                                        connect_port = topo_file[j+1];
-                                }
-                                else if (j%4 == 2){
-                                        connect_sw = topo_file[j-2];
-                                        connect_port = topo_file[j+1];
-                                }
-                                for (int k=0; k<switch_num; k++){
-                                        if (topo_sws_uni[k] == connect_sw){
-                                                Switch_Topo[i*((switch_num-1)+1+2*Host_Num)+k] = connect_port;
-                                        }
-                                }
-                        }
-                }
-        }
-
-        // Number of vertices in the graph 
-        int V = switch_num;
-
-        // graph initialization
-        vector<int> graph(V*V);
-        for (int i=0; i<graph.size(); i++){
-                if (Switch_Topo[(i/V)*((switch_num-1)+1+2*Host_Num)+i%V] == -1){
-                        graph[i] = 0;
-                }
-                else {
-                        graph[i] = 1;
-                }
-        }
-
-        // dijkstra for each pair, store intermediate and dst sws (not including src sw)
-        vector< vector<int> > pair_path(V*V);
-        for (int i=0; i<V; i++){
-                 dijkstra(V, graph, i, pair_path); 
-        } 
-
-        while ( cin >> h_src){	
-                cin >> h_dst;
-                src = h_src/Host_Num;
-                dst = h_dst/Host_Num;    
-
-        // channel <-- node pair ID, node pair <-- channel ID 
-        Pair tmp_pair(src,dst,h_src,h_dst);  
-        pairs.push_back(tmp_pair);
-
-        //pair path
-        int src_index = -1;
-        int dst_index = -1;
-        for (int i = 0; i < switch_num; i++){
-                if (topo_sws_uni[i] == src){
-                        src_index = i;
-                }
-                if (topo_sws_uni[i] == dst){
-                        dst_index = i;
-                } 
-                if (src_index != -1 && dst_index != -1) break;               
-        }
-        if (src_index == -1 || dst_index == -1) cout << "Error: src/dst number is wrong" << endl;
-
-        // localhost(h_src) --> src
-        int t = src_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+h_src%Host_Num;
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
-        pairs[ct].pair_id = ct; 
-        pairs[ct].hops = pair_path[src_index*V+dst_index].size()+1;
-        hops += pairs[ct].hops;
-
-        // src --> dst
-        for (int i=0; i<pair_path[src_index*V+dst_index].size(); i++){
-                if (i==0){
-                        t = src_index*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
-                }
-                else {
-                        t = pair_path[src_index*V+dst_index][i-1]*((switch_num-1)+1+2*Host_Num)+pair_path[src_index*V+dst_index][i];
-                }
-                Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-                pairs[ct].channels.push_back(t);  // node pair <-- channel ID     
-        }
-
-        // dst --> localhost(h_dst)
-        t = dst_index*((switch_num-1)+1+2*Host_Num)+(switch_num-1)+1+Host_Num+h_dst%Host_Num;
-        Crossing_Paths[t].pair_index.push_back(ct); // channel <-- node pair ID
-        pairs[ct].channels.push_back(t); // node pair <-- channel ID  
-
-        ct++;
-        }
-   }	
-
-   // ########################################## //
-   // ##############   PHASE 2   ############### //
-   // ##  Slot #       ## //
-   // ########################################## //
-
-   if (flows.size()>0){
-        // delete duplicate flow id in channel
-        for (int i = 0; i < ports; i++){
-                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+i;
-                sort(elem->flow_index.begin(), elem->flow_index.end());
-                elem->flow_index.erase(unique(elem->flow_index.begin(), elem->flow_index.end()), elem->flow_index.end());
-        }
-
-        // delete duplicate channel id in flow
-        for (int i = 0; i < flows.size(); i++){
-                vector<Flow>::iterator elem = flows.begin()+i;
-                sort(elem->channels.begin(), elem->channels.end());
-                elem->channels.erase(unique(elem->channels.begin(), elem->channels.end()), elem->channels.end());           
-        }
-   }
-
-   int max_cp = max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size();
-
-   int max_id = 0;
-	
-   int max_cp_dst = 0; // number of dst-based renewable labels
-
-   // calculate number of dst-based renewable label
-   int max_cp_dst_t = 0;
-
-   int default_slot = 8;
-
-   vector<int>::iterator find_ptr;
-
-   if (flows.size()>0){
-        max_cp = 0;
-        for (int j = 0; j < ports; j++ ){ 
-                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
-                if (elem->flow_index.size() > max_cp) max_cp = elem->flow_index.size();
-                unsigned int p_ct = 0;
-                while ( p_ct < elem->flow_index.size() ){
-                        int u = elem->flow_index[p_ct]; 
-                        bool is_duplicate = false; //check if there is a same destination
-                        unsigned int p_ct_t = 0;
-                        while ( p_ct_t < p_ct ){
-                                int v = elem->flow_index[p_ct_t]; 
-                                for (int m = 0; m < flows[u].pairs_id.size(); m++){
-                                        for (int n = 0; n < flows[v].pairs_id.size(); n++){
-                                                if (pairs[flows[u].pairs_id[m]].h_dst == pairs[flows[v].pairs_id[n]].h_dst){
-                                                        is_duplicate = true;
-                                                        break;
-                                                }
-                                        }
-                                        if (is_duplicate == true) break;
-                                }
-                                if (is_duplicate == true) break;
-                                p_ct_t++;
-                        }
-                        if (!is_duplicate) max_cp_dst_t++;
-                        p_ct++;
-                }
-                if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
-                max_cp_dst_t = 0;
-        }
-        cout << " === Max. number of slots (w/o update) [FLOW] ===" << endl << max_cp_dst << endl;	
-        cout << " === Max. number of slots (w/ update) [FLOW] ===" << endl << max_cp << endl;
-
-        max_cp = 0;
-        for (int j = 0; j < ports; j++ ){ 
-                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
-                for (int i = 0; i < ports; i++){
-                        if (Crossing_Paths[i].flow_index.size() > max_cp){
-                                max_cp = Crossing_Paths[i].flow_index.size();
-                                elem = Crossing_Paths.begin()+i;
-                        }
-                }
-                
-                // local IDs are assigned
-                unsigned int path_ct = 0; 
-                while ( path_ct < elem->flow_index.size() ){
-                int t = elem->flow_index[path_ct];      
-                // check if IDs are assigned
-                bool valid = true;
-                for (int i = 0; i < flows[t].pairs_id.size(); i++){
-                        if (pairs[flows[t].pairs_id[i]].Valid == false){
-                                valid = false;
-                                break;
-                        }
-                }
-                if ( valid == true ) {path_ct++; continue;}
-                // ID is assigned from 0
-                int id_tmp = 0;
-                bool NG_ID = false;
-                        
-                NEXT_ID_FLOW:
-                        // ID is used or not
-                        unsigned int s_ct = 0; // channel
-                        while ( s_ct < flows[t].channels.size() && !NG_ID ){
-                        int i = flows[t].channels[s_ct];
-                        //vector<int>::iterator find_ptr;
-                        find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
-                        if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
-                        if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
-                        int tmp = 0;
-                        while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
-                        NG_ID = true; 
-                        for (int n = 0; n < flows[t].pairs_id.size(); n++){
-                                if (pairs[flows[t].pairs_id[n]].h_dst == Crossing_Paths[i].assigned_dst_list[tmp]){
-                                        NG_ID = false;
-                                        break;
-                                }
-                        }
-                        }
-                        s_ct++;
-                        }
-                        if (NG_ID){
-                        id_tmp++; NG_ID = false; goto NEXT_ID_FLOW;
-                        }
-                        flows[t].ID = id_tmp;
-
-                        unsigned int a_ct = 0;
-                        while ( a_ct < flows[t].channels.size() ){
-                        int j = flows[t].channels[a_ct];
-                                Crossing_Paths[j].assigned_list.push_back(id_tmp);
-                                int t = elem->flow_index[path_ct];   
-                                for (int n = 0; n < flows[t].pairs_id.size(); n++){
-                                        Crossing_Paths[j].assigned_dst_list.push_back(pairs[flows[t].pairs_id[n]].h_dst);
-                                }                                   	
-                                a_ct++; 
-                        }
-
-                        for (int n = 0; n < flows[t].pairs_id.size(); n++){
-                                pairs[flows[t].pairs_id[n]].Valid = true;
-                        }                                   	                       	    
-                        if (max_id <= id_tmp) max_id = id_tmp + 1; 
-
-                        path_ct++;
-                }
-                elem->Valid = true;
-        }
-   }
-   else{
-        for (int j = 0; j < ports; j++ ){ 
-                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
-                        unsigned int p_ct = 0;
-                        while ( p_ct < elem->pair_index.size() ){
-                                int u = elem->pair_index[p_ct]; 
-                                bool is_duplicate = false; //check if there is a same destination
-                                unsigned int p_ct_t = 0;
-                                while ( p_ct_t < p_ct ){
-                                        int v = elem->pair_index[p_ct_t]; 
-                                        if (pairs[u].h_dst == pairs[v].h_dst){
-                                                is_duplicate = true;
-                                        }
-                                        p_ct_t++;
-                                }
-                                if (!is_duplicate) max_cp_dst_t++;
-                                p_ct++;
-                        }
-                        if (max_cp_dst_t > max_cp_dst) max_cp_dst = max_cp_dst_t;
-                        max_cp_dst_t = 0;
-        }
-        cout << " === Max. number of slots (w/o update) ===" << endl << max_cp_dst << endl;	
-        cout << " === Max. number of slots (w/ update) ===" << endl << max_cp << endl;
-
-        /*int slot_max = 0;
-        for (int i = 0; i < Crossing_Paths.size(); i++){
-                if (i%(degree+1+2*Host_Num) != degree+2*Host_Num && i%(degree+1+2*Host_Num) != degree+2*Host_Num-1)
-                if(Crossing_Paths[i].pair_index.size() > slot_max)
-                slot_max = Crossing_Paths[i].pair_index.size();
-        }
-        cout << " slot_max = " << slot_max << endl;	*/
-
-        for (int j = 0; j < ports; j++ ){ 
-                vector<Cross_Paths>::iterator elem = Crossing_Paths.begin()+j;
-                elem = max_element(Crossing_Paths.begin(),Crossing_Paths.end());
-
-                // local IDs are assigned
-                unsigned int path_ct = 0; 
-                while ( path_ct < elem->pair_index.size() ){
-                int t = elem->pair_index[path_ct];      
-                // check if IDs are assigned
-                if ( pairs[t].Valid == true ) {path_ct++; continue;}
-                // ID is assigned from 0
-                int id_tmp = 0;
-                bool NG_ID = false;
-                        
-                NEXT_ID:
-                        // ID is used or not
-                        unsigned int s_ct = 0; // channel
-                        while ( s_ct < pairs[t].channels.size() && !NG_ID ){
-                        int i = pairs[t].channels[s_ct];
-                        //vector<int>::iterator find_ptr;
-                        find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
-                        if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
-                        if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
-                        int tmp = 0;
-                        while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
-                        if (pairs[t].h_dst != Crossing_Paths[i].assigned_dst_list[tmp])
-                                                NG_ID = true; 
-                        }
-                        s_ct++;
-                        }
-                        
-                        if (NG_ID){
-                        id_tmp++; NG_ID = false; goto NEXT_ID;
-                        }
-                        pairs[t].ID = id_tmp;
-
-                        unsigned int a_ct = 0;
-                        while ( a_ct < pairs[t].channels.size() ){
-                        int j = pairs[t].channels[a_ct];
-                                Crossing_Paths[j].assigned_list.push_back(id_tmp);
-                                int t = elem->pair_index[path_ct];      	
-                                Crossing_Paths[j].assigned_dst_list.push_back(pairs[t].h_dst);
-                                a_ct++; 
-                        }
-
-                        pairs[t].Valid = true;	    
-                        if (max_id <= id_tmp) max_id = id_tmp + 1; 
-
-                        path_ct++;
-                }
-                elem->Valid = true;
-        }
-   }
-
-   if (Topology == 0 || Topology == 1) // mesh or torus
-   show_paths(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot, flows);     
-        
-   if (Topology == 2) // fat-tree
-   show_paths_tree(Crossing_Paths, ct, node_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, PORT, default_slot, flows);
-   
-   if (Topology == 3) // fully-connected
-   show_paths_fullyconnected(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot, flows); 
-
-   if (Topology == 4) // full mesh connected circles (FCC)
-   show_paths_fcc(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot, flows);  
-
-   if (Topology == 5) // topology file
-   show_paths_tf(Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, Switch_Topo, topo_sws_uni, default_slot, flows);  
 
    pthread_exit(NULL);   
    return 0;

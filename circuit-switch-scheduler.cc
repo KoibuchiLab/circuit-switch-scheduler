@@ -1626,7 +1626,7 @@ void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths, vector<
                         v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index;
                         v.erase(remove(v.begin(), v.end(), job.job_id*1000+job.src_dst_pairs_m[p].flow_id), v.end());  
                         v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list;
-                        v.erase(remove(v.begin(), v.end(), job.flows[job.job_id*1000+job.src_dst_pairs_m[p].flow_id].ID), v.end()); 
+                        v.erase(remove(v.begin(), v.end(), job.flows[job.src_dst_pairs_m[p].flow_id].ID), v.end()); 
                         v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list;
                         v.erase(remove(v.begin(), v.end(), job.src_dst_pairs_m[p].h_dst), v.end());                                             
                         for (int j=4; j<Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table.size(); j=j+6){
@@ -1648,11 +1648,12 @@ void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths, vector<
 //release nodes after execution
 void release_nodes(Job job, vector<int> & sys, vector<Cross_Paths> & Crossing_Paths, vector<Pair> & pairs)
 {
+
        sleep(job.time_run);
 
        for (int n=0; n<job.nodes.size(); n++){
                sys[job.nodes[n]] = 0; //released
-       }       
+       }  
 
        update_after_release(job, Crossing_Paths, pairs);
 
@@ -2736,82 +2737,80 @@ void calc_slots(int ports, vector<Cross_Paths> & Crossing_Paths, Job & job, vect
 // ##  Slot #       ## //
 // ########################################## //
 void alloc_slot(Job & job, vector<Cross_Paths> & Crossing_Paths, bool path_based, int & max_id){
-    max_id = 0;
-    for (int i=0; i<job.flows.size(); i++){
+        max_id = 0;
         
         // local IDs are assigned
         unsigned int path_ct = 0; 
         while ( path_ct < job.flows.size() ){   
-            // check if IDs are assigned
-            bool valid = true;
+                // check if IDs are assigned
+                bool valid = true;
 
-            for (int n=0; n<job.src_dst_pairs_m.size(); n++){
+                for (int n=0; n<job.src_dst_pairs_m.size(); n++){
                 if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
-                    if (job.src_dst_pairs_m[n].Valid == false){
+                        if (job.src_dst_pairs_m[n].Valid == false){
                         valid = false;
                         break;
-                    }
+                        }
                 }
-            }
+                }
 
-            if ( valid == true ) {path_ct++; continue;}
-            // ID is assigned from 0
-            int id_tmp = 0;
-            bool NG_ID = false;
-                    
-            NEXT_ID_FLOW:
-                    // ID is used or not
-                    unsigned int s_ct = 0; // channel
-                    while ( s_ct < job.flows[path_ct].channels.size() && !NG_ID ){
+                if ( valid == true ) {path_ct++; continue;}
+                // ID is assigned from 0
+                int id_tmp = 0;
+                bool NG_ID = false;
+                        
+                NEXT_ID_FLOW:
+                        // ID is used or not
+                        unsigned int s_ct = 0; // channel
+                        while ( s_ct < job.flows[path_ct].channels.size() && !NG_ID ){
                         int i = job.flows[path_ct].channels[s_ct];
                         vector<int>::iterator find_ptr;
                         find_ptr = find ( Crossing_Paths[i].assigned_list.begin(), Crossing_Paths[i].assigned_list.end(), id_tmp);
                         if ( path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) NG_ID = true;
                         if (!path_based && find_ptr != Crossing_Paths[i].assigned_list.end()) {
-                            int tmp = 0;
-                            while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
-                            NG_ID = true; 
-                            for (int j=0; j<job.src_dst_pairs_m.size(); j++){
+                                int tmp = 0;
+                                while (*find_ptr != Crossing_Paths[i].assigned_list[tmp]) {tmp++;}
+                                NG_ID = true; 
+                                for (int j=0; j<job.src_dst_pairs_m.size(); j++){
                                 if (job.src_dst_pairs_m[j].flow_id == job.flows[path_ct].id){
-                                    if (job.src_dst_pairs_m[j].h_dst == Crossing_Paths[i].assigned_dst_list[tmp]){
-                                            NG_ID = false;
-                                            break;
-                                    }
+                                        if (job.src_dst_pairs_m[j].h_dst == Crossing_Paths[i].assigned_dst_list[tmp]){
+                                                NG_ID = false;
+                                                break;
+                                        }
                                 }
-                            }
+                                }
                         }
                         s_ct++;
-                    }
-                    if (NG_ID){
-                    id_tmp++; NG_ID = false; goto NEXT_ID_FLOW;
-                    }
-                    job.flows[path_ct].ID = id_tmp;
-
-                    unsigned int a_ct = 0;
-                    while ( a_ct < job.flows[path_ct].channels.size() ){
-                            int j = job.flows[path_ct].channels[a_ct];
-                            Crossing_Paths[j].assigned_list.push_back(id_tmp); 
-                            for (int n=0; n<job.src_dst_pairs_m.size(); n++){
-                                if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
-                                    Crossing_Paths[j].assigned_dst_list.push_back(job.src_dst_pairs_m[n].h_dst);
-                                }
-                            }                                                               	
-                            a_ct++; 
-                    }
-
-                    for (int n=0; n<job.src_dst_pairs_m.size(); n++){
-                        if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
-                            job.src_dst_pairs_m[n].Valid = true;
                         }
-                    }
-                                  	                       	    
-                    if (max_id <= id_tmp) max_id = id_tmp + 1; 
+                        if (NG_ID){
+                        id_tmp++; NG_ID = false; goto NEXT_ID_FLOW;
+                        }
+                        job.flows[path_ct].ID = id_tmp;
 
-                    path_ct++;
+                        unsigned int a_ct = 0;
+                        while ( a_ct < job.flows[path_ct].channels.size() ){
+                                int j = job.flows[path_ct].channels[a_ct];
+                                Crossing_Paths[j].assigned_list.push_back(id_tmp); 
+                                for (int n=0; n<job.src_dst_pairs_m.size(); n++){
+                                if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
+                                        Crossing_Paths[j].assigned_dst_list.push_back(job.src_dst_pairs_m[n].h_dst);
+                                }
+                                }                                                               	
+                                a_ct++; 
+                        }
+
+                        for (int n=0; n<job.src_dst_pairs_m.size(); n++){
+                        if (job.src_dst_pairs_m[n].flow_id == job.flows[path_ct].id){
+                                job.src_dst_pairs_m[n].Valid = true;
+                        }
+                        }
+                                                                        
+                        if (max_id <= id_tmp) max_id = id_tmp + 1; 
+
+                        path_ct++;
         }
         //elem->Valid = true;
 
-    }
 }
 
 //dispatch jobs (random)
@@ -3198,7 +3197,8 @@ int main(int argc, char *argv[])
                         show_paths_fcc(all_jobs, Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, default_slot);  
 
                         if (Topology == 5) // topology file
-                        show_paths_tf(all_jobs, Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, Switch_Topo, topo_sws_uni, default_slot);                          
+                        show_paths_tf(all_jobs, Crossing_Paths, ct, switch_num, max_id, pairs, hops, Host_Num, max_cp, max_cp_dst, path_based, degree, Switch_Topo, topo_sws_uni, default_slot);  
+                        
                 }
         }
         else if(all_submitted == true){

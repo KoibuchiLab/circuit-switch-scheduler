@@ -1621,14 +1621,14 @@ void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths, vector<
         for (int p=0; p<job.src_dst_pairs_m.size(); p++){
                 //update Crossing_Paths
                 for (int i=0; i<job.src_dst_pairs_m[p].channels.size(); i++){
-                        vector<int> v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].pair_index;
-                        v.erase(remove(v.begin(), v.end(), job.src_dst_pairs_m[p].pair_id), v.end());
-                        v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index;
-                        v.erase(remove(v.begin(), v.end(), job.job_id*1000+job.src_dst_pairs_m[p].flow_id), v.end());  
-                        v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list;
-                        v.erase(remove(v.begin(), v.end(), job.flows[job.src_dst_pairs_m[p].flow_id].ID), v.end()); 
-                        v = Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list;
-                        v.erase(remove(v.begin(), v.end(), job.src_dst_pairs_m[p].h_dst), v.end());                                             
+                        Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].pair_index.erase(remove(Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].pair_index.begin(), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].pair_index.end(), 
+                        job.src_dst_pairs_m[p].pair_id), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].pair_index.end());
+                        Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index.erase(remove(Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index.begin(), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index.end(), 
+                        job.job_id*1000+job.src_dst_pairs_m[p].flow_id), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].flow_index.end());  
+                        Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list.erase(remove(Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list.begin(), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list.end(), 
+                        job.flows[job.src_dst_pairs_m[p].flow_id].ID), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list.end()); 
+                        Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.erase(remove(Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.begin(), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.end(), 
+                        job.src_dst_pairs_m[p].h_dst), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.end());                                             
                         for (int j=4; j<Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table.size(); j=j+6){
                                 if (Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j] == job.src_dst_pairs_m[p].pair_id){
                                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-4] = -1;
@@ -1643,6 +1643,7 @@ void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths, vector<
 
                 pairs.erase(remove(pairs.begin(), pairs.end(), job.src_dst_pairs_m[p]), pairs.end());             
         }
+
 }
 
 //release nodes after execution
@@ -2786,7 +2787,7 @@ void alloc_slot(Job & job, vector<Cross_Paths> & Crossing_Paths, bool path_based
                         id_tmp++; NG_ID = false; goto NEXT_ID_FLOW;
                         }
                         job.flows[path_ct].ID = id_tmp;
-
+                        
                         unsigned int a_ct = 0;
                         while ( a_ct < job.flows[path_ct].channels.size() ){
                                 int j = job.flows[path_ct].channels[a_ct];

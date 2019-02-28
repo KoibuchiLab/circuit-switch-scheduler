@@ -25,29 +25,29 @@
  === The average hops ===
 3.000000
  === Routing path for each node pair ===
- Pair ID 0 (Flow ID 0): 
+ Pair ID 0 (Flow ID 0, Job 0): 
    SW 0 (port 0->1) - [slot 0] -> SW 1 (port 2->1) - [slot 0] -> SW 2 (port 2->0)
- Pair ID 1 (Flow ID 1): 
+ Pair ID 1 (Flow ID 1, Job 0): 
    SW 1 (port 0->1) - [slot 1] -> SW 2 (port 2->1) - [slot 1] -> SW 3 (port 2->0)
- Pair ID 2 (Flow ID 1): 
+ Pair ID 2 (Flow ID 1, Job 0): 
    SW 1 (port 0->2) - [slot 1] -> SW 0 (port 1->0)
- Pair ID 3 (Flow ID 2): 
+ Pair ID 3 (Flow ID 2, Job 0): 
    SW 2 (port 0->1) - [slot 0] -> SW 3 (port 2->0)
  === Port information for each switch === 
  SW 0 : 
-      Port 1 (Slot 1) --> Port 0 (Slot 1), from node 1 to node 0 (Pair ID 2, Flow ID 1)
-      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 2 (Pair ID 0, Flow ID 0)
+      Port 1 (Slot 1) --> Port 0 (Slot 1), from node 1 to node 0 (Pair ID 2, Flow ID 1, Job 0)
+      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 2 (Pair ID 0, Flow ID 0, Job 0)
  SW 1 : 
-      Port 2 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 2 (Pair ID 0, Flow ID 0)
-      Port 0 (Slot 1) --> Port 1 (Slot 1), from node 1 to node 3 (Pair ID 1, Flow ID 1)
-      Port 0 (Slot 1) --> Port 2 (Slot 1), from node 1 to node 0 (Pair ID 2, Flow ID 1)
+      Port 2 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 2 (Pair ID 0, Flow ID 0, Job 0)
+      Port 0 (Slot 1) --> Port 1 (Slot 1), from node 1 to node 3 (Pair ID 1, Flow ID 1, Job 0)
+      Port 0 (Slot 1) --> Port 2 (Slot 1), from node 1 to node 0 (Pair ID 2, Flow ID 1, Job 0)
  SW 2 : 
-      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 0 to node 2 (Pair ID 0, Flow ID 0)
-      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 2 to node 3 (Pair ID 3, Flow ID 2)
-      Port 2 (Slot 1) --> Port 1 (Slot 1), from node 1 to node 3 (Pair ID 1, Flow ID 1)
+      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 0 to node 2 (Pair ID 0, Flow ID 0, Job 0)
+      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 2 to node 3 (Pair ID 3, Flow ID 2, Job 0)
+      Port 2 (Slot 1) --> Port 1 (Slot 1), from node 1 to node 3 (Pair ID 1, Flow ID 1, Job 0)
  SW 3 : 
-      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 2 to node 3 (Pair ID 3, Flow ID 2)
-      Port 2 (Slot 1) --> Port 0 (Slot 1), from node 1 to node 3 (Pair ID 1, Flow ID 1)
+      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 2 to node 3 (Pair ID 3, Flow ID 2, Job 0)
+      Port 2 (Slot 1) --> Port 0 (Slot 1), from node 1 to node 3 (Pair ID 1, Flow ID 1, Job 0)
  SW 4 : 
  SW 5 : 
  SW 6 : 

@@ -25,13 +25,13 @@
  === The average hops ===
 2.750000
  === Routing path for each node pair ===
- Pair ID 4 (Flow ID 0): 
+ Pair ID 4 (Flow ID 0, Job 1): 
    SW 0 (port 0->1) - [slot 0] -> SW 1 (port 2->0)
  === Port information for each switch === 
  SW 0 : 
-      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0)
+      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0, Job 1)
  SW 1 : 
-      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0)
+      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0, Job 1)
  SW 2 : 
  SW 3 : 
  SW 4 : 

@@ -269,7 +269,7 @@ bool path_based, int degree, int default_slot)
             Pair current_pair = pairs[i];
             slot_num = all_jobs[current_pair.job_id].flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
-            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << ", Job " << current_pair.job_id << "): " << endl;
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
                     input_port = 0;
@@ -342,13 +342,22 @@ bool path_based, int degree, int default_slot)
                 //     outputfile << output_port_s << slot_num_s << " " << input_port_s << slot_num_s <<"  // from node "<< current_pair.h_src << " to node " << current_pair.h_dst << endl;
                 //     outputfile.close();
 
+                bool new_pair = true;
+                for (int k=0; k < Crossing_Paths[current_pair.channels[j]].routing_table.size(); k=k+7){
+                        if (Crossing_Paths[current_pair.channels[j]].routing_table[k+4] == current_pair.pair_id){
+                                new_pair = false;
+                                break;
+                        }
+                }
+                if (new_pair == true){
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.flow_id);  // routing table <-- flow id
-
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.job_id);  // routing table <-- job id
+                }
             }
             outputfile << endl;
     }
@@ -376,7 +385,7 @@ bool path_based, int degree, int default_slot)
         bool slot_occupied = false;
         for (int s=0; s < slots; s++){
                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
-                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+6){
+                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+7){
                                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile_sw << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j] << " ";
                                         slot_occupied = true;
@@ -387,7 +396,8 @@ bool path_based, int degree, int default_slot)
                                         << " to node " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+3] 
                                         << " (Pair ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+4]
                                         << ", Flow ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+5]
-                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                        << ", Job " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+6]
+                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                 }  
                         }        
                 }
@@ -431,7 +441,7 @@ bool path_based, int degree, int default_slot)
                 }  
                 for (int s=0; s < slots; s++){
                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+6){
+                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+7){
                                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                 outputfile_sw << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                 slot_occupied = true;
@@ -441,8 +451,9 @@ bool path_based, int degree, int default_slot)
                                                 << "), from node " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+2] 
                                                 << " to node " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+3] 
                                                 << " (Pair ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+4]
-                                                << ", Flow ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+5]                                                
-                                                << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                                << ", Flow ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+5] 
+                                                << ", Job " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+6]                                               
+                                                << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                         }  
                                 }        
                         }
@@ -579,7 +590,7 @@ bool path_based, int PORT, int default_slot)
                 Pair current_pair = pairs[i];
                 slot_num = all_jobs[current_pair.job_id].flows[current_pair.flow_id].ID;
                 //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
-                outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+                outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << ", Job " << current_pair.job_id << "): " << endl;
                 for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> from src node, current_pair.channels[-1] --> to dst node
                         target_sw = -1;
                         input_port = -1;
@@ -610,12 +621,22 @@ bool path_based, int PORT, int default_slot)
                                 outputfile << "Node " << current_pair.h_dst;
                         }                        
 
+                bool new_pair = true;
+                for (int k=0; k < Crossing_Paths[current_pair.channels[j]].routing_table.size(); k=k+7){
+                        if (Crossing_Paths[current_pair.channels[j]].routing_table[k+4] == current_pair.pair_id){
+                                new_pair = false;
+                                break;
+                        }
+                }
+                if (new_pair == true){
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                         Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.flow_id);  // routing table <-- flow id
+                        Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.job_id);  // routing table <-- job id
+                }
 
                 }
                 outputfile << endl;
@@ -658,7 +679,7 @@ bool path_based, int PORT, int default_slot)
                         outputfile_sw << op << "00" << endl;
                 }  
                 for (int s=0; s < slots; s++){
-                        for (int j=0; j < Crossing_Paths[PORT*(i+node_num)+op].routing_table.size(); j=j+6){ //i+node_num --> sw #
+                        for (int j=0; j < Crossing_Paths[PORT*(i+node_num)+op].routing_table.size(); j=j+7){ //i+node_num --> sw #
                                 if (Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile_sw << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j] << " "; // j --> input port
                                         slot_occupied = true;
@@ -669,7 +690,8 @@ bool path_based, int PORT, int default_slot)
                                         << " to node " << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+3] 
                                         << " (Pair ID " << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+4]
                                         << ", Flow ID " << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+5]
-                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                        << ", Job " << Crossing_Paths[PORT*(i+node_num)+op].routing_table[j+6]
+                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                 }  
                         }        
                         if (slot_occupied == false){
@@ -779,7 +801,7 @@ bool path_based, int degree, int default_slot)
             Pair current_pair = pairs[i];
             slot_num = all_jobs[current_pair.job_id].flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
-            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << ", Job " << current_pair.job_id << "): " << endl;
             for (int j=0; j < current_pair.channels.size(); j++){ // only current_pair.channels[0] --> from src to dst
                     target_sw = -1;
                     input_port = 0;
@@ -792,13 +814,31 @@ bool path_based, int degree, int default_slot)
                         outputfile << "       SW " << target_sw << " (port " << input_port << "->" << output_port << ")" << " - [slot " << slot_num << "] -> ";
                     }
 
+                bool new_pair = true;
+                for (int k=0; k < Crossing_Paths[current_pair.channels[j]].routing_table.size(); k=k+7){
+                        if (Crossing_Paths[current_pair.channels[j]].routing_table[k+4] == current_pair.pair_id){
+                                new_pair = false;
+                                break;
+                        }
+                }
+                if (new_pair == true){
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.flow_id);  // routing table <-- flow id
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.job_id);  // routing table <-- job id
+                }
 
+                new_pair = true;
+                for (int k=0; k < Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.size(); k=k+7){
+                        if (Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table[k+4] == current_pair.pair_id){
+                                new_pair = false;
+                                break;
+                        }
+                }
+                if (new_pair == true){
                     target_sw = current_pair.dst;
                     input_port = current_pair.src;
                     output_port = current_pair.dst; // localhost
@@ -808,6 +848,8 @@ bool path_based, int degree, int default_slot)
                     Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
                     Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                     Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.flow_id);  // routing table <-- flow id
+                    Crossing_Paths[current_pair.dst*(degree+1+2*Host_Num)+current_pair.dst].routing_table.push_back(current_pair.job_id);  // routing table <-- job id
+                }
                     
                     outputfile << "SW " << target_sw << " (port " << input_port << "->" << output_port << ")";
                 }
@@ -843,7 +885,7 @@ bool path_based, int degree, int default_slot)
                 }  
                 for (int s=0; s < slots; s++){
                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+6){
+                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+7){
                                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                 outputfile_sw << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                 slot_occupied = true;
@@ -854,7 +896,8 @@ bool path_based, int degree, int default_slot)
                                                 << " to node " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+3] 
                                                 << " (Pair ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+4]
                                                 << ", Flow ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+5]
-                                                << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                                << ", Job " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+6]
+                                                << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                         }  
                                 }        
                         }
@@ -965,7 +1008,7 @@ bool path_based, int degree, int default_slot)
             Pair current_pair = pairs[i];
             slot_num = all_jobs[current_pair.job_id].flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
-            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << ", Job " << current_pair.job_id << "): " << endl;
             for (int j=1; j < current_pair.channels.size(); j++){ //current_pair.channels[0] --> src, current_pair.channels[current_pair.channels.size()-1] --> dst
                     target_sw = -1;
                     input_port = 0;
@@ -1032,12 +1075,22 @@ bool path_based, int degree, int default_slot)
                 //     outputfile << output_port_s << slot_num_s << " " << input_port_s << slot_num_s <<"  // from node "<< current_pair.h_src << " to node " << current_pair.h_dst << endl;
                 //     outputfile.close();
 
+                bool new_pair = true;
+                for (int k=0; k < Crossing_Paths[current_pair.channels[j]].routing_table.size(); k=k+7){
+                        if (Crossing_Paths[current_pair.channels[j]].routing_table[k+4] == current_pair.pair_id){
+                                new_pair = false;
+                                break;
+                        }
+                }
+                if (new_pair == true){
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.flow_id);  // routing table <-- flow id
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.job_id);  // routing table <-- job id
+                }
 
             }
             outputfile << endl;
@@ -1066,7 +1119,7 @@ bool path_based, int degree, int default_slot)
         bool slot_occupied = false;
         for (int s=0; s < slots; s++){
                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
-                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+6){
+                        for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j=j+7){
                                 if (Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile_sw << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j] << " ";
                                         slot_occupied = true;
@@ -1077,7 +1130,8 @@ bool path_based, int degree, int default_slot)
                                         << " to node " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+3] 
                                         << " (Pair ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+4]
                                         << ", Flow ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+5]
-                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                        << ", Job " << Crossing_Paths[(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table[j+6]
+                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                 }  
                         }        
                 }
@@ -1098,7 +1152,7 @@ bool path_based, int degree, int default_slot)
                 }  
                 for (int s=0; s < slots; s++){
                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+6){
+                                for (int j=0; j < Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table.size(); j=j+7){
                                         if (Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                 outputfile_sw << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                 slot_occupied = true;
@@ -1109,7 +1163,8 @@ bool path_based, int degree, int default_slot)
                                                 << " to node " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+3] 
                                                 << " (Pair ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+4]
                                                 << ", Flow ID " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+5]
-                                                << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                                << ", Job " << Crossing_Paths[(degree+1+2*Host_Num)*i+op].routing_table[j+6]
+                                                << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                         }  
                                 }        
                         }
@@ -1221,7 +1276,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
             Pair current_pair = pairs[i];
             slot_num = all_jobs[current_pair.job_id].flows[current_pair.flow_id].ID;
             //cout << " Pair ID " << current_pair.pair_id << " (Slot " << slot_num << "): ";
-            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << "): " << endl;
+            outputfile << " Pair ID " << current_pair.pair_id << " (Flow ID " << current_pair.flow_id << ", Job " << current_pair.job_id << "): " << endl;
 
             int src_index = -1;
             int dst_index = -1;
@@ -1297,12 +1352,22 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
                 //     outputfile << output_port_s << slot_num_s << " " << input_port_s << slot_num_s <<"  // from node "<< current_pair.h_src << " to node " << current_pair.h_dst << endl;
                 //     outputfile.close();
 
+                bool new_pair = true;
+                for (int k=0; k < Crossing_Paths[current_pair.channels[j]].routing_table.size(); k=k+7){
+                        if (Crossing_Paths[current_pair.channels[j]].routing_table[k+4] == current_pair.pair_id){
+                                new_pair = false;
+                                break;
+                        }
+                }
+                if (new_pair == true){
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(input_port); // routing table <-- input port
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(slot_num);  // routing table <-- slot number
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_src);  // routing table <-- src node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.h_dst);  // routing table <-- dst node
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.pair_id);  // routing table <-- pair id
                     Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.flow_id);  // routing table <-- flow id
+                    Crossing_Paths[current_pair.channels[j]].routing_table.push_back(current_pair.job_id);  // routing table <-- job id
+                }
 
             }
             outputfile << endl;
@@ -1331,7 +1396,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
         bool slot_occupied = false;
         for (int s=0; s < slots; s++){
                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size() > 0){
-                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size(); j=j+6){
+                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table.size(); j=j+7){
                                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+1] == s){  // j+1 --> slot number
                                         outputfile_sw << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j] << " ";
                                         slot_occupied = true;
@@ -1342,7 +1407,8 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
                                         << " to node " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+3] 
                                         << " (Pair ID " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+4]
                                         << ", Flow ID " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+5]
-                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                        << ", Job " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+(switch_num-1)+2*Host_Num].routing_table[j+6]
+                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                 }  
                         }        
                 }
@@ -1365,7 +1431,7 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
                         }
                         for (int s=0; s < slots; s++){
                                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size() > 0){
-                                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size(); j=j+6){
+                                        for (int j=0; j < Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table.size(); j=j+7){
                                                 if (Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+1] == s){  // j+1 --> slot number
                                                         outputfile_sw << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j] << " "; // j --> input port
                                                         slot_occupied = true;
@@ -1376,7 +1442,8 @@ bool path_based, int degree, vector<int> Switch_Topo, vector<int> topo_sws_uni, 
                                                         << " to node " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+3] 
                                                         << " (Pair ID " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+4]
                                                         << ", Flow ID " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+5]
-                                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id
+                                                        << ", Job " << Crossing_Paths[((switch_num-1)+1+2*Host_Num)*i+op].routing_table[j+6]
+                                                        << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
                                                 }  
                                         } 
                                 }
@@ -1515,7 +1582,7 @@ void submit_jobs(vector<Job> & all_jobs, vector<Job> & queue, int queue_policy, 
         queue.push_back(all_jobs[0]);
         int current_submit = all_jobs[0].time_submit;
         //cout << "Job " << all_jobs[0].job_id << " is submitted" << endl;
-        printf("%d\t: Job %d is submitted\n", current_submit, all_jobs[0].job_id); 
+        printf("%d\t: Job %d (%lu flows, %lu pairs) is submitted\n", current_submit, all_jobs[0].job_id, all_jobs[0].flows.size(), all_jobs[0].src_dst_pairs.size()); 
         for (int i=1; i<all_jobs.size(); i++){
                 int submit_interval = all_jobs[i].time_submit - current_submit;
                 if (submit_interval > 0){
@@ -1538,7 +1605,7 @@ void submit_jobs(vector<Job> & all_jobs, vector<Job> & queue, int queue_policy, 
                         all_jobs[i].time_submit_r = time(NULL);
                         queue.push_back(all_jobs[i]);
                         //cout << "Job " << all_jobs[i].job_id << " is submitted" << endl;  
-                        printf("%d\t: Job %d is submitted\n", current_submit, all_jobs[i].job_id);                                                                                        
+                        printf("%d\t: Job %d (%lu flows, %lu pairs) is submitted\n", current_submit, all_jobs[i].job_id, all_jobs[i].flows.size(), all_jobs[i].src_dst_pairs.size());                                                                                        
                 }
                 else{
                         //cout << "Job " << all_jobs[i].job_id << " is not submitted due to errorous submit time" << endl;
@@ -1652,7 +1719,7 @@ void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths, vector<
                         job.flows[job.src_dst_pairs_m[p].flow_id].ID), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_list.end()); 
                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.erase(remove(Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.begin(), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.end(), 
                         job.src_dst_pairs_m[p].h_dst), Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].assigned_dst_list.end());                                             
-                        for (int j=4; j<Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table.size(); j=j+6){
+                        for (int j=4; j<Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table.size(); j=j+7){
                                 if (Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j] == job.src_dst_pairs_m[p].pair_id){
                                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-4] = -1;
                                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-3] = -1;
@@ -1660,6 +1727,7 @@ void update_after_release(Job job, vector<Cross_Paths> & Crossing_Paths, vector<
                                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j-1] = -1;
                                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j] = -1;
                                         Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j+1] = -1;
+                                        Crossing_Paths[job.src_dst_pairs_m[p].channels[i]].routing_table[j+2] = -1;
                                 }
                         }
                 }
@@ -1685,7 +1753,7 @@ void release_nodes(Job job, vector<int> & sys, vector<Cross_Paths> & Crossing_Pa
        int timestamp = finish - job.time_submit_r + job.time_submit;
 
        //cout << "Job " << job.job_id << " is finished" << endl;  
-       printf("%d\t: Job %d is finished\n", timestamp, job.job_id); 
+       printf("%d\t: Job %d (%lu flows, %lu pairs) is finished\n", timestamp, job.job_id, job.flows.size(), job.src_dst_pairs.size()); 
 }
 
 // ########################################## //
@@ -2853,7 +2921,7 @@ int dispatch_random(vector<int> & sys, vector<Job> & queue, vector<Job> & all_jo
                                //cout << "Job " << queue[0].job_id << " is dispatched" << endl;
                                int time_dispatch_r = time(NULL);
                                timestamp = time_dispatch_r-queue[0].time_submit_r+queue[0].time_submit;
-                               printf("%d\t: Job %d is dispatched\n", timestamp, queue[0].job_id); 
+                               printf("%d\t: Job %d (%lu flows, %lu pairs) is dispatched --> output/t%d/\n", timestamp, queue[0].job_id, queue[0].flows.size(), queue[0].src_dst_pairs.size(), timestamp); 
                                //for (int j=0; j<ava_nodes.size(); j++) cout << ava_nodes[i] << " " << endl;
                                for (int j=0; j<all_jobs.size(); j++){
                                        if(all_jobs[j].job_id == queue[0].job_id){
@@ -2877,6 +2945,7 @@ int dispatch_random(vector<int> & sys, vector<Job> & queue, vector<Job> & all_jo
                                                 thread rn{release_nodes, all_jobs[j], ref(sys), ref(Crossing_Paths), ref(pairs)};
                                                 rn.detach();  
                                                 queue.erase(queue.begin()); 
+
                                                 return timestamp;          
                                        }
                                }       
@@ -3246,6 +3315,7 @@ int main(int argc, char *argv[])
                 }
         }
         else if(all_submitted == true){
+                sleep(1);
                 cout << "All jobs have been dispatched" << endl;
                 while (true) {
                     if (all_finished == true){

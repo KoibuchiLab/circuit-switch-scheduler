@@ -1,8 +1,8 @@
 5 8
 0000
+2 
 void
 void
-1 
 void
 void
 void
@@ -19,7 +19,7 @@ void
 void
 0200
 void
-void
+0 
 void
 void
 void
@@ -27,7 +27,7 @@ void
 void
 void
 0300
-1 1 1 
+void
 void
 void
 void

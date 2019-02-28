@@ -1,0 +1,48 @@
+ === Max. number of slots (w/o update) [FLOW] ===
+1
+ === Max. number of slots (w/ update) [FLOW] ===
+1
+ === Number of slots === 
+ X1, X2, (X3, X4, X5, X6, X7, X8, ...), Out, In 
+ SW  0:   1 0 0 0 1 0
+ SW  1:   0 0 0 0 0 1
+ SW  2:   0 0 0 0 0 0
+ SW  3:   0 0 0 0 0 0
+ SW  4:   0 0 0 0 0 0
+ SW  5:   0 0 0 0 0 0
+ SW  6:   0 0 0 0 0 0
+ SW  7:   0 0 0 0 0 0
+ SW  8:   0 0 0 0 0 0
+ SW  9:   0 0 0 0 0 0
+ SW 10:   0 0 0 0 0 0
+ SW 11:   0 0 0 0 0 0
+ SW 12:   0 0 0 0 0 0
+ SW 13:   0 0 0 0 0 0
+ SW 14:   0 0 0 0 0 0
+ SW 15:   0 0 0 0 0 0
+ === The number of paths on this application ===
+4 (all-to-all cases: 240)
+ === The average hops ===
+2.750000
+ === Routing path for each node pair ===
+ Pair ID 4 (Flow ID 0): 
+   SW 0 (port 0->1) - [slot 0] -> SW 1 (port 2->0)
+ === Port information for each switch === 
+ SW 0 : 
+      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0)
+ SW 1 : 
+      Port 2 (Slot 0) --> Port 0 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0)
+ SW 2 : 
+ SW 3 : 
+ SW 4 : 
+ SW 5 : 
+ SW 6 : 
+ SW 7 : 
+ SW 8 : 
+ SW 9 : 
+ SW 10 : 
+ SW 11 : 
+ SW 12 : 
+ SW 13 : 
+ SW 14 : 
+ SW 15 : 

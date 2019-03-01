@@ -1,18 +1,27 @@
 //
 // circuit-switch-scheduler.cc
 //
-// mesh/torus/fat-tree/fully-connected/full-mesh-connected-circles(FCC)
-// Usage: cat test.txt | ./cst.out -D 2 -a 4 -T 0  <-- 2-D 16-node mesh
+// mesh/torus/fat-tree/fully-connected/full-mesh-connected-circles(FCC)/topology-file
+// Usage: cat workload.txt | ./css.out -D 2 -a 4 -T 0  <-- 2-D 16-node mesh
 //
-// % less test.txt
-// 3  4    <--- path from node 3 to node 4
-// 2  4
+// % less workload.txt
+// submit_time run_time node_num source destination flow_id job_id
+// 1 1 4 1 3 0 0
+// 1 1 4 2 4 1 0
+// 1 1 4 2 1 1 0
+// 1 1 4 3 4 2 0
+// 5 6 2 0 3 0 1
+// 7 3 8 5 6 0 2
+// 7 3 8 4 1 1 2
+// 7 3 8 3 5 2 2
+// 7 3 8 2 7 2 2
+// 7 3 8 6 8 2 2
+// 9 5 4 8 1 0 3
+// 9 5 4 2 9 0 3
 //
-// Usage: ./traffic_pattern_generator.out -t 0 -n 4 | ./cst.out -D 2 -a 4 -T 0
+// Fri Mar 01 14:05:42 JST 2019 huyao@nii.ac.jp
 //
-// Wed Sep 06 19:24:42 JST 2018 huyao@nii.ac.jp
-//
-// This file estimates # of slots and generates routing table for each switch
+// This program schedules the jobs described in the workload file
 //
 
 #include <unistd.h> // getopt

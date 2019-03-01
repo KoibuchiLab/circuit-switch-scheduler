@@ -11,9 +11,9 @@ Usage:
 > cat workload.txt | ./css.out -T [0-5] -a $node_num (other parameters and usages are the same as cst.out)
 
 ### circuit-switch-scheduler.cc
-This program schedules the jobs (including flows and pairs) described in the workload file.
+This program schedules the jobs (including flows and pairs) described in the workload file.
 
-#### Example of workload file (e.g., workload.txt)
+#### Example of workload file (e.g., workload.txt)
 submit_time run_time node_num source destination flow_id job_id
 
     1 1 4 1 3 0 0

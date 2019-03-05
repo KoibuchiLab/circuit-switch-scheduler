@@ -47,3 +47,9 @@ $ cat workload.txt | ./css.out -T [0-5] (other parameters and usages are the sam
 
 ### [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc)
 This program schedules the jobs (including flows and pairs) described in the workload file.
+
+#### Program sketch:
+
+<div align=center>
+<img src="fig/css.png" width=512 height=256 />
+</div>

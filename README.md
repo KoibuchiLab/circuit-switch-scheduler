@@ -6,13 +6,27 @@ This file produces one executable file:
 
 **css.out**
 
-*circuit switch scheduler (see details in circuit-switch-scheduler.cc)*
+*circuit switch scheduler (see details in [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc))*
 
 Usage: 
 ```shell
 $ make
 $ cat workload.txt | ./css.out -T [0-5] (other parameters and usages are the same as cst.out)
 ```
+
+Parameters:
+
+| Parameter | Note | Value |
+| --- | --- | --- |
+| **-T \<n\>** | Set topology | 0: Mesh, 1: Torus, 2: Fat Tree, 3: Fully Connected, 4: Dragonfly (FCC), 5: Topology File |
+| **-a \<n\>** | Set array size for mesh (-T 0) or torus (-T 1) | Integer (defaultly 4) |
+| **-n \<n\>** | Set the number of hosts to one switch for fat-tree (-T 2) | Integer (defaultly 1) |
+| **-u** | Allow to update a slot number (at intermediate switches on a path) |  |
+| **-D \<n\>** | Set switch degree for mesh (-T 0) or torus (-T 1) | Integer (defaultly 4) |
+| **-d \<n\>** | Set switch ports (not include host) for dragonfly (-T 4) | Integer (defaultly 8) |
+| **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer (defaultly 4) |
+| **-t \<filename\>** | Set topology file name (-T 5) | File name |
+
 
 ### [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc)
 This program schedules the jobs (including flows and pairs) described in the workload file.

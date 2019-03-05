@@ -10,6 +10,7 @@ This file produces one executable file:
 
 Usage: 
 ```shell
+$ make
 $ cat workload.txt | ./css.out -T [0-5] (other parameters and usages are the same as cst.out)
 ```
 

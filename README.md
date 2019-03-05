@@ -8,7 +8,9 @@ This file produces one executable file:
     circuit switch scheduler (see details in circuit-switch-scheduler.cc)
 
 Usage: 
-> cat workload.txt | ./css.out -T [0-5] -a $node_num (other parameters and usages are the same as cst.out)
+```
+cat workload.txt | ./css.out -T [0-5] -a $node_num (other parameters and usages are the same as cst.out)
+```
 
 ### circuit-switch-scheduler.cc
 This program schedules the jobs (including flows and pairs) described in the workload file.

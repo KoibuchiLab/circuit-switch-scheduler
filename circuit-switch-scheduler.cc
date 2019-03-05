@@ -1857,7 +1857,7 @@ void submit_jobs(vector<Job> &all_jobs, vector<Job> &queue, int queue_policy, bo
                 if (i == all_jobs.size() - 1)
                 {
                         all_submitted = true;
-                        cout << "All jobs have been submitted" << endl;
+                        cout << "...All jobs have been submitted..." << endl;
                 }
         }
 }
@@ -3548,8 +3548,7 @@ int main(int argc, char *argv[])
         }
 
         cout << " ### simulation start ###" << endl;
-        cout << " === Update of slot number ===" << endl
-             << " 0 (no) / 1 (yes): " << path_based << " (Use -u to activate the update) " << endl;
+        cout << " Update of slot number 0 (no) / 1 (yes) --> " << path_based << " (Use -u to activate the update) " << endl;
 
         // source and destination
         int src = -1, dst = -1, h_src = -1, h_dst = -1;
@@ -3675,7 +3674,7 @@ int main(int argc, char *argv[])
         // node pairs
         vector<Pair> pairs;
 
-        cout << " === topology ===" << endl;
+        cout << " Topology --> ";
         if (Topology == 0)
                 cout << dimension << "-D mesh (" << switch_num << " switches/nodes)" << endl;
         else if (Topology == 1)
@@ -3870,12 +3869,12 @@ int main(int argc, char *argv[])
                 else if (all_submitted == true)
                 {
                         sleep(1);
-                        cout << "All jobs have been dispatched" << endl;
+                        cout << "...All jobs have been dispatched..." << endl;
                         while (true)
                         {
                                 if (all_finished == true)
                                 {
-                                        cout << "All jobs have been finished" << endl;
+                                        cout << "...All jobs have been finished..." << endl;
                                         break;
                                 }
                         }

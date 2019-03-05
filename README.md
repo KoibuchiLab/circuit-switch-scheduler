@@ -3,18 +3,20 @@ This repo contains the work on job scheduling over circuit-switched network.
 ## Source Files
 ### [Makefile](Makefile)
 This file produces one executable file:
+*css.out*
+* circuit switch scheduler (see details in [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc))
 
-**css.out**
+Simulation results are saved in output/, sorted by scheduling clocks (e.g., t1, t5, t7, t9,...)
 
-*circuit switch scheduler (see details in [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc))*
+For each scheduling clock (showed in folder output/t*), there is one system log file (stat) and routing table for each switch (sw*)
 
-Usage: 
+#### Usage: 
 ```shell
 $ make
 $ cat workload.txt | ./css.out -T [0-5] (other parameters and usages are the same as cst.out)
 ```
 
-Parameters:
+#### Parameters:
 
 | Parameter | Note | Value |
 | --- | --- | --- |
@@ -27,11 +29,8 @@ Parameters:
 | **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer (defaultly 4) |
 | **-t \<filename\>** | Set topology file name (-T 5) | File name |
 
+#### Example of workload file (e.g., workload.txt):
 
-### [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc)
-This program schedules the jobs (including flows and pairs) described in the workload file.
-
-#### Example of workload file (e.g., workload.txt)
     #submit_time run_time node_num source destination flow_id job_id
 
     1 1 4 1 3 0 0
@@ -47,5 +46,5 @@ This program schedules the jobs (including flows and pairs) described in the wor
     9 5 4 8 1 0 3
     9 5 4 2 9 0 3
 
-* Simulation results are saved in output/, sorted by scheduling clocks (e.g., t1, t5, t7, t9,...).
-* For each scheduling clock (showed in folder output/t*), there is one system log file (stat) and routing table for each switch (sw*).
+### [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc)
+This program schedules the jobs (including flows and pairs) described in the workload file.

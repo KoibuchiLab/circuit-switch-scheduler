@@ -12,7 +12,7 @@ This repo contains the work on job scheduling over circuit-switched network.
 #### Usage: 
 ```shell
 $ make
-$ cat workload.txt | ./css.out -T [0-5] (other parameters are as follows)
+$ cat workload.txt | ./css.out (parameters are as follows)
 ```
 
 #### Parameters:

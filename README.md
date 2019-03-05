@@ -2,13 +2,12 @@
 This repo contains the work on job scheduling over circuit-switched network.
 ## Source Files
 ### [Makefile](Makefile)
-This file produces one executable file:
-*css.out*
-* circuit switch scheduler (see details in [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc))
+* This file produces one executable file:
+*css.out*, which is run as circuit switch scheduler (see details in [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc))
 
-Simulation results are saved in output/, sorted by scheduling clocks (e.g., t1, t5, t7, t9,...)
+* Simulation results are saved in output/, sorted by scheduling clocks (e.g., t1, t5, t7, t9,...)
 
-For each scheduling clock (showed in folder output/t*), there is one system log file (stat) and routing table for each switch (sw*)
+* For each scheduling clock (showed in folder output/t*), there is one system log file (stat) and routing table for each switch (sw*)
 
 #### Usage: 
 ```shell

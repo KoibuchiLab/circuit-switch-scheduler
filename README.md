@@ -1,22 +1,23 @@
 # circuit-switch-scheduler
 This repo contains the work on job scheduling over circuit-switched network.
 ## Source Files
-### Makefile
+### [Makefile](Makefile)
 This file produces one executable file:
-* css.out
 
-    circuit switch scheduler (see details in circuit-switch-scheduler.cc)
+**css.out**
+
+*circuit switch scheduler (see details in circuit-switch-scheduler.cc)*
 
 Usage: 
 ```shell
-$ cat workload.txt | ./css.out -T [0-5] -a $node_num (other parameters and usages are the same as cst.out)
+$ cat workload.txt | ./css.out -T [0-5] (other parameters and usages are the same as cst.out)
 ```
 
-### circuit-switch-scheduler.cc
+### [circuit-switch-scheduler.cc](circuit-switch-scheduler.cc)
 This program schedules the jobs (including flows and pairs) described in the workload file.
 
 #### Example of workload file (e.g., workload.txt)
-submit_time run_time node_num source destination flow_id job_id
+    #submit_time run_time node_num source destination flow_id job_id
 
     1 1 4 1 3 0 0
     1 1 4 2 4 1 0

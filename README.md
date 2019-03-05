@@ -19,13 +19,13 @@ $ cat workload.txt | ./css.out -T [0-5] (other parameters and usages are the sam
 
 | Parameter | Note | Value |
 | --- | --- | --- |
-| **-T \<n\>** | Set topology | 0: Mesh, 1: Torus, 2: Fat Tree, 3: Fully Connected, 4: Dragonfly (FCC), 5: Topology File |
-| **-a \<n\>** | Set array size for mesh (-T 0) or torus (-T 1) | Integer (defaultly 4) |
-| **-n \<n\>** | Set the number of hosts to one switch for fat-tree (-T 2) | Integer (defaultly 1) |
+| **-T \<n\>** | Set topology | 0: Mesh, <br> 1: Torus, <br> 2: Fat Tree, <br> 3: Fully Connected, <br> 4: Dragonfly (FCC), <br> 5: Topology File |
+| **-a \<n\>** | Set array size for mesh (-T 0) or torus (-T 1) | Integer <br> (defaultly 4) |
+| **-n \<n\>** | Set the number of hosts to one switch for fat-tree (-T 2) | Integer <br> (defaultly 1) |
 | **-u** | Allow to update a slot number (at intermediate switches on a path) |  |
-| **-D \<n\>** | Set switch degree for mesh (-T 0) or torus (-T 1) | Integer (defaultly 4) |
-| **-d \<n\>** | Set switch ports (not include host) for dragonfly (-T 4) | Integer (defaultly 8) |
-| **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer (defaultly 4) |
+| **-D \<n\>** | Set switch degree for mesh (-T 0) or torus (-T 1) | Integer <br> (defaultly 4) |
+| **-d \<n\>** | Set switch ports (not include host) for dragonfly (-T 4) | Integer <br> (defaultly 8) |
+| **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer <br> (defaultly 4) |
 | **-t \<filename\>** | Set topology file name (-T 5) | File name |
 
 #### Example of workload file (e.g., workload.txt):

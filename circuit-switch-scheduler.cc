@@ -3868,11 +3868,10 @@ int main(int argc, char *argv[])
                 }
                 else if (all_submitted == true)
                 {
-                        sleep(1);
+                        sleep(5);
                         cout << "...All jobs have been dispatched..." << endl;
                         while (true)
                         {
-                                sleep(1);
                                 if (all_finished == true)
                                 {
                                         cout << "...All jobs have been finished..." << endl;

@@ -24,7 +24,7 @@ Job 1: (0 --> 3) : (0 --> 1) : [0, 1]
  SW 14:   0 0 0 0 0 0
  SW 15:   0 0 0 0 0 0
  === The number of paths on this application ===
-4 (all-to-all cases: 240)
+5 (all-to-all cases: 240)
  === The average hops ===
 2.750000
  === Routing path for each node pair ===

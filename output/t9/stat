@@ -2,6 +2,7 @@
 Job 0: (1 --> 3, 2 --> 4, 2 --> 1, 3 --> 4) : (0 --> 2, 1 --> 3, 1 --> 0, 2 --> 3) : [0, 1, 2, 3]
 Job 1: (0 --> 3) : (0 --> 1) : [0, 1]
 Job 2: (5 --> 6, 4 --> 1, 3 --> 5, 2 --> 7, 6 --> 8) : (6 --> 7, 5 --> 2, 4 --> 6, 3 --> 8, 7 --> 9) : [2, 3, 4, 5, 6, 7, 8, 9]
+Job 3: (8 --> 1, 2 --> 9) : (12 --> 10, 11 --> 13) : [10, 11, 12, 13]
  === Max. number of slots (w/o update) [FLOW] ===
 2
  === Max. number of slots (w/ update) [FLOW] ===
@@ -17,17 +18,17 @@ Job 2: (5 --> 6, 4 --> 1, 3 --> 5, 2 --> 7, 6 --> 8) : (6 --> 7, 5 --> 2, 4 --> 
  SW  6:   1 1 0 1 1 1
  SW  7:   0 1 0 0 1 1
  SW  8:   0 0 0 0 0 1
- SW  9:   0 0 0 0 0 1
- SW 10:   0 0 0 0 0 0
- SW 11:   0 0 0 0 0 0
- SW 12:   0 0 0 0 0 0
- SW 13:   0 0 0 0 0 0
- SW 14:   0 0 0 0 0 0
+ SW  9:   0 0 1 0 0 1
+ SW 10:   0 1 0 0 0 1
+ SW 11:   0 1 0 0 1 0
+ SW 12:   1 0 0 0 1 0
+ SW 13:   1 0 0 0 0 1
+ SW 14:   0 0 0 1 0 0
  SW 15:   0 0 0 0 0 0
  === The number of paths on this application ===
-9 (all-to-all cases: 240)
+12 (all-to-all cases: 240)
  === The average hops ===
-3.222222
+3.363636
  === Routing path for each node pair ===
  Pair ID 4 (Flow ID 0, Job 1): 
    SW 0 (port 0->1) - [slot 0] -> SW 1 (port 2->0)
@@ -41,6 +42,10 @@ Job 2: (5 --> 6, 4 --> 1, 3 --> 5, 2 --> 7, 6 --> 8) : (6 --> 7, 5 --> 2, 4 --> 
    SW 3 (port 0->2) - [slot 1] -> SW 2 (port 1->2) - [slot 1] -> SW 1 (port 1->2) - [slot 1] -> SW 0 (port 1->3) - [slot 1] -> SW 4 (port 4->3) - [slot 1] -> SW 8 (port 4->0)
  Pair ID 9 (Flow ID 2, Job 2): 
    SW 7 (port 0->2) - [slot 1] -> SW 6 (port 1->2) - [slot 1] -> SW 5 (port 1->3) - [slot 1] -> SW 9 (port 4->0)
+ Pair ID 10 (Flow ID 0, Job 3): 
+   SW 12 (port 0->1) - [slot 0] -> SW 13 (port 2->1) - [slot 0] -> SW 14 (port 2->4) - [slot 0] -> SW 10 (port 3->0)
+ Pair ID 11 (Flow ID 0, Job 3): 
+   SW 11 (port 0->2) - [slot 0] -> SW 10 (port 1->2) - [slot 0] -> SW 9 (port 1->3) - [slot 0] -> SW 13 (port 4->0)
  === Port information for each switch === 
  SW 0 : 
       Port 0 (Slot 0) --> Port 1 (Slot 0), from node 0 to node 1 (Pair ID 4, Flow ID 0, Job 1)
@@ -72,9 +77,17 @@ Job 2: (5 --> 6, 4 --> 1, 3 --> 5, 2 --> 7, 6 --> 8) : (6 --> 7, 5 --> 2, 4 --> 
       Port 4 (Slot 1) --> Port 0 (Slot 1), from node 3 to node 8 (Pair ID 8, Flow ID 2, Job 2)
  SW 9 : 
       Port 4 (Slot 1) --> Port 0 (Slot 1), from node 7 to node 9 (Pair ID 9, Flow ID 2, Job 2)
+      Port 1 (Slot 0) --> Port 3 (Slot 0), from node 11 to node 13 (Pair ID 11, Flow ID 0, Job 3)
  SW 10 : 
+      Port 3 (Slot 0) --> Port 0 (Slot 0), from node 12 to node 10 (Pair ID 10, Flow ID 0, Job 3)
+      Port 1 (Slot 0) --> Port 2 (Slot 0), from node 11 to node 13 (Pair ID 11, Flow ID 0, Job 3)
  SW 11 : 
+      Port 0 (Slot 0) --> Port 2 (Slot 0), from node 11 to node 13 (Pair ID 11, Flow ID 0, Job 3)
  SW 12 : 
+      Port 0 (Slot 0) --> Port 1 (Slot 0), from node 12 to node 10 (Pair ID 10, Flow ID 0, Job 3)
  SW 13 : 
+      Port 4 (Slot 0) --> Port 0 (Slot 0), from node 11 to node 13 (Pair ID 11, Flow ID 0, Job 3)
+      Port 2 (Slot 0) --> Port 1 (Slot 0), from node 12 to node 10 (Pair ID 10, Flow ID 0, Job 3)
  SW 14 : 
+      Port 2 (Slot 0) --> Port 4 (Slot 0), from node 12 to node 10 (Pair ID 10, Flow ID 0, Job 3)
  SW 15 : 

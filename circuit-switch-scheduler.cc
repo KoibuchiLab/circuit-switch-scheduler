@@ -311,7 +311,7 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
         //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
         //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
         outputfile << " === The number of paths on this application ===" << endl
-                   << ct << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
+                   << (ct+1) << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
         outputfile << " === The average hops ===" << endl
                    << setiosflags(ios::fixed | ios::showpoint) << (float)hops / ct + 1 << endl;
         //cout << " ID size(without ID modification)" << max_id << endl;
@@ -706,7 +706,7 @@ void show_paths_tree(int timestamp, ofstream &outputfile, vector<Job> all_jobs, 
         //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
         //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
         outputfile << " === The number of paths on this application ===" << endl
-                   << ct << " (all-to-all cases: " << node_num * (node_num - 1) << ")" << endl;
+                   << (ct+1) << " (all-to-all cases: " << node_num * (node_num - 1) << ")" << endl;
         outputfile << " === The average hops ===" << endl
                    << setiosflags(ios::fixed | ios::showpoint) << (float)hops / ct + 1 << endl;
         //cout << " ID size(without ID modification)" << max_id << endl;
@@ -990,7 +990,7 @@ void show_paths_fullyconnected(int timestamp, ofstream &outputfile, vector<Job> 
         //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
         //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
         outputfile << " === The number of paths on this application ===" << endl
-                   << ct << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
+                   << (ct+1) << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
         outputfile << " === The average hops ===" << endl
                    << setiosflags(ios::fixed | ios::showpoint) << (float)hops / ct + 1 << endl;
         //cout << " ID size(without ID modification)" << max_id << endl;
@@ -1265,7 +1265,7 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
         //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
         //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
         outputfile << " === The number of paths on this application ===" << endl
-                   << ct << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
+                   << (ct+1) << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
         outputfile << " === The average hops ===" << endl
                    << setiosflags(ios::fixed | ios::showpoint) << (float)hops / ct + 1 << endl;
         //cout << " ID size(without ID modification)" << max_id << endl;
@@ -1611,7 +1611,7 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
         //cout << " (Maximum) Crossing Paths: " << max_element(Crossing_Paths.begin(),Crossing_Paths.end())->pair_index.size() << endl;
         //cout << " (Maximum) Crossing Paths: " << max_cp << endl;
         outputfile << " === The number of paths on this application ===" << endl
-                   << ct << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
+                   << (ct+1) << " (all-to-all cases: " << (switch_num * Host_Num) * (switch_num * Host_Num - 1) << ")" << endl;
         outputfile << " === The average hops ===" << endl
                    << setiosflags(ios::fixed | ios::showpoint) << (float)hops / ct << endl;
         //cout << " ID size(without ID modification)" << max_id << endl;

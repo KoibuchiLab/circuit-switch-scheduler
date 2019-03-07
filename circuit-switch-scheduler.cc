@@ -230,7 +230,7 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
         //int pointer = 0;
         //int total_slots = 0;
 
-        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) ===" << endl;
+        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) : [occupied nodes] ===" << endl;
         for (int n = 0; n < all_jobs.size(); n++){
                 if (all_jobs[n].src_dst_pairs_m.size() > 0){
                         outputfile << "Job " << all_jobs[n].job_id << ": (";
@@ -247,9 +247,17 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
                                         outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
                                 } 
                                 else {
-                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ") : [";
                                 }
                         }
+                        for (int m = 0; m < all_jobs[n].nodes.size(); m++){
+                                if (m != all_jobs[n].nodes.size()-1){
+                                        outputfile << all_jobs[n].nodes[m] << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].nodes[m] << "]" << endl;
+                                }
+                        }                        
                 }                
         }
 
@@ -650,9 +658,17 @@ void show_paths_tree(int timestamp, ofstream &outputfile, vector<Job> all_jobs, 
                                         outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
                                 } 
                                 else {
-                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ") : [";
                                 }
                         }
+                        for (int m = 0; m < all_jobs[n].nodes.size(); m++){
+                                if (m != all_jobs[n].nodes.size()-1){
+                                        outputfile << all_jobs[n].nodes[m] << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].nodes[m] << "]" << endl;
+                                }
+                        }                        
                 }                
         }        
 
@@ -919,9 +935,17 @@ void show_paths_fullyconnected(int timestamp, ofstream &outputfile, vector<Job> 
                                         outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
                                 } 
                                 else {
-                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ") : [";
                                 }
                         }
+                        for (int m = 0; m < all_jobs[n].nodes.size(); m++){
+                                if (m != all_jobs[n].nodes.size()-1){
+                                        outputfile << all_jobs[n].nodes[m] << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].nodes[m] << "]" << endl;
+                                }
+                        }                        
                 }                
         }        
 
@@ -1186,9 +1210,17 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
                                         outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
                                 } 
                                 else {
-                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ") : [";
                                 }
                         }
+                        for (int m = 0; m < all_jobs[n].nodes.size(); m++){
+                                if (m != all_jobs[n].nodes.size()-1){
+                                        outputfile << all_jobs[n].nodes[m] << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].nodes[m] << "]" << endl;
+                                }
+                        }                        
                 }                
         }        
 
@@ -1524,9 +1556,17 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                                         outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
                                 } 
                                 else {
-                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ") : [";
                                 }
                         }
+                        for (int m = 0; m < all_jobs[n].nodes.size(); m++){
+                                if (m != all_jobs[n].nodes.size()-1){
+                                        outputfile << all_jobs[n].nodes[m] << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].nodes[m] << "]" << endl;
+                                }
+                        }                        
                 }                
         }        
 
@@ -3551,11 +3591,11 @@ int dispatch_random(vector<int> &sys, vector<Job> &queue, vector<Job> &all_jobs,
                                 int time_dispatch_r = time(NULL);
                                 timestamp = time_dispatch_r - queue[0].time_submit_r + queue[0].time_submit;
                                 printf("%d\t: Job %d (%lu flows, %lu pairs) is dispatched --> output/t%d/\n", timestamp, queue[0].job_id, queue[0].flows.size(), queue[0].src_dst_pairs.size(), timestamp);
-                                printf("\t  assigned nodes --> (");
-                                for (int m = 0; m < ava_nodes.size(); m++){
-                                        if (m == ava_nodes.size()-1) printf("%d)\n", ava_nodes[m]);
-                                        else printf("%d, ", ava_nodes[m]);
-                                }
+                                // printf("\t  assigned nodes --> (");
+                                // for (int m = 0; m < ava_nodes.size(); m++){
+                                //         if (m == ava_nodes.size()-1) printf("%d)\n", ava_nodes[m]);
+                                //         else printf("%d, ", ava_nodes[m]);
+                                // }
                                 //for (int j=0; j<ava_nodes.size(); j++) cout << ava_nodes[i] << " " << endl;
                                 for (int j = 0; j < all_jobs.size(); j++)
                                 {

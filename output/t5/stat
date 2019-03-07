@@ -1,6 +1,6 @@
- === Node mapping (logical src --> dst) : (physical src --> dst) ===
-Job 0: (1 --> 3, 2 --> 4, 2 --> 1, 3 --> 4) : (0 --> 2, 1 --> 3, 1 --> 0, 2 --> 3)
-Job 1: (0 --> 3) : (0 --> 1)
+ === Node mapping (logical src --> dst) : (physical src --> dst) : [occupied nodes] ===
+Job 0: (1 --> 3, 2 --> 4, 2 --> 1, 3 --> 4) : (0 --> 2, 1 --> 3, 1 --> 0, 2 --> 3) : [0, 1, 2, 3]
+Job 1: (0 --> 3) : (0 --> 1) : [0, 1]
  === Max. number of slots (w/o update) [FLOW] ===
 1
  === Max. number of slots (w/ update) [FLOW] ===

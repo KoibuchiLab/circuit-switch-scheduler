@@ -38,10 +38,13 @@
 #include <stdio.h>
 
 #include <thread>
+//#include <mutex>
 #include <unistd.h> //sleep for secs
 #include <time.h>
 
 using namespace std;
+
+//mutex mtx;
 
 static void usage(char *myname);
 void usage(char *myname)
@@ -226,6 +229,29 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
         //int slots = 0;
         //int pointer = 0;
         //int total_slots = 0;
+
+        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) ===" << endl;
+        for (int n = 0; n < all_jobs.size(); n++){
+                if (all_jobs[n].src_dst_pairs_m.size() > 0){
+                        outputfile << "Job " << all_jobs[n].job_id << ": (";
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ") : (";
+                                }
+                        }
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs_m.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs_m.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                }
+                        }
+                }                
+        }
 
         outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
                    << max_cp_dst << endl;
@@ -607,6 +633,29 @@ void show_paths_tree(int timestamp, ofstream &outputfile, vector<Job> all_jobs, 
         vector<Cross_Paths>::iterator elem = Crossing_Paths.begin();
         int outport = 0;
 
+        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) ===" << endl;
+        for (int n = 0; n < all_jobs.size(); n++){
+                if (all_jobs[n].src_dst_pairs_m.size() > 0){
+                        outputfile << "Job " << all_jobs[n].job_id << ": (";
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ") : (";
+                                }
+                        }
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs_m.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs_m.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                }
+                        }
+                }                
+        }        
+
         outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
                    << max_cp_dst << endl;
         outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
@@ -853,6 +902,29 @@ void show_paths_fullyconnected(int timestamp, ofstream &outputfile, vector<Job> 
         //int pointer = 0;
         //int total_slots = 0;
 
+        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) ===" << endl;
+        for (int n = 0; n < all_jobs.size(); n++){
+                if (all_jobs[n].src_dst_pairs_m.size() > 0){
+                        outputfile << "Job " << all_jobs[n].job_id << ": (";
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ") : (";
+                                }
+                        }
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs_m.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs_m.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                }
+                        }
+                }                
+        }        
+
         outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
                    << max_cp_dst << endl;
         outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
@@ -1096,6 +1168,29 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
         //int slots = 0;
         //int pointer = 0;
         //int total_slots = 0;
+
+        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) ===" << endl;
+        for (int n = 0; n < all_jobs.size(); n++){
+                if (all_jobs[n].src_dst_pairs_m.size() > 0){
+                        outputfile << "Job " << all_jobs[n].job_id << ": (";
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ") : (";
+                                }
+                        }
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs_m.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs_m.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                }
+                        }
+                }                
+        }        
 
         outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
                    << max_cp_dst << endl;
@@ -1411,6 +1506,29 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
         //int slots = 0;
         //int pointer = 0;
         //int total_slots = 0;
+
+        outputfile << " === Node mapping (logical src --> dst) : (physical src --> dst) ===" << endl;
+        for (int n = 0; n < all_jobs.size(); n++){
+                if (all_jobs[n].src_dst_pairs_m.size() > 0){
+                        outputfile << "Job " << all_jobs[n].job_id << ": (";
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs[m].h_src << " --> " << all_jobs[n].src_dst_pairs[m].h_dst << ") : (";
+                                }
+                        }
+                        for (int m = 0; m < all_jobs[n].src_dst_pairs_m.size(); m++){
+                                if (m != all_jobs[n].src_dst_pairs_m.size()-1){
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ", ";
+                                } 
+                                else {
+                                        outputfile << all_jobs[n].src_dst_pairs_m[m].h_src << " --> " << all_jobs[n].src_dst_pairs_m[m].h_dst << ")" << endl;
+                                }
+                        }
+                }                
+        }        
 
         outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
                    << max_cp_dst << endl;
@@ -1797,6 +1915,7 @@ void check_state(vector<int> &sys, vector<Job> &queue, bool &all_submitted, bool
 {
         while (true)
         {
+                //lock_guard<mutex> mtx_locker(mtx);
                 int ava = 0;
                 for (int i = 0; i < sys.size(); i++)
                 {
@@ -1813,6 +1932,7 @@ void check_state(vector<int> &sys, vector<Job> &queue, bool &all_submitted, bool
 //job submit thread
 void submit_jobs(vector<Job> &all_jobs, vector<Job> &queue, int queue_policy, bool &all_submitted)
 {
+        //lock_guard<mutex> mtx_locker(mtx);
         all_jobs[0].time_submit_r = time(NULL);
         queue.push_back(all_jobs[0]);
         int current_submit = all_jobs[0].time_submit;
@@ -3431,6 +3551,11 @@ int dispatch_random(vector<int> &sys, vector<Job> &queue, vector<Job> &all_jobs,
                                 int time_dispatch_r = time(NULL);
                                 timestamp = time_dispatch_r - queue[0].time_submit_r + queue[0].time_submit;
                                 printf("%d\t: Job %d (%lu flows, %lu pairs) is dispatched --> output/t%d/\n", timestamp, queue[0].job_id, queue[0].flows.size(), queue[0].src_dst_pairs.size(), timestamp);
+                                printf("\t  assigned nodes --> (");
+                                for (int m = 0; m < ava_nodes.size(); m++){
+                                        if (m == ava_nodes.size()-1) printf("%d)\n", ava_nodes[m]);
+                                        else printf("%d, ", ava_nodes[m]);
+                                }
                                 //for (int j=0; j<ava_nodes.size(); j++) cout << ava_nodes[i] << " " << endl;
                                 for (int j = 0; j < all_jobs.size(); j++)
                                 {
@@ -3826,7 +3951,9 @@ int main(int argc, char *argv[])
         //dispatch jobs
         while (true)
         {
-                sleep(1);
+                //lock_guard<mutex> mtx_locker(mtx);
+                usleep(100000);
+                
                 if (queue.size() > 0)
                 {
                         if (queue[0].num_nodes < 1 || queue[0].num_nodes > switch_num || queue[0].time_run < 0)

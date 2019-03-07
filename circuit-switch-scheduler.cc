@@ -3417,7 +3417,7 @@ void alloc_slot(Job &job, vector<Cross_Paths> &Crossing_Paths, bool path_based, 
 int dispatch_random(vector<int> &sys, vector<Job> &queue, vector<Job> &all_jobs, int topo, int switch_num, int hosts, int degree, vector<Cross_Paths> &Crossing_Paths, int dimension, int array_size, int &hops, int &before_hops, int PORT, int node_num,
                     int groups, int group_switch_num, vector<int> &Switch_Topo, int inter_group, vector<int> topo_file, vector<int> topo_sws_uni,
                     int &src, int &dst, int &h_src, int &h_dst, int &ct, int ports, bool path_based, int &max_id, int &max_cp, int &max_cp_dst, int &max_cp_dst_t, vector<Pair> &pairs)
-{
+{     
         vector<int> ava_nodes;
         int timestamp;
         for (int i = 0; i < sys.size(); i++)
@@ -3826,6 +3826,7 @@ int main(int argc, char *argv[])
         //dispatch jobs
         while (true)
         {
+                sleep(1);
                 if (queue.size() > 0)
                 {
                         if (queue[0].num_nodes < 1 || queue[0].num_nodes > switch_num || queue[0].time_run < 0)
@@ -3868,7 +3869,6 @@ int main(int argc, char *argv[])
                 }
                 else if (all_submitted == true)
                 {
-                        sleep(5);
                         cout << "...All jobs have been dispatched..." << endl;
                         while (true)
                         {

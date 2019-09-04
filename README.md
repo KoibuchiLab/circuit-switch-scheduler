@@ -27,6 +27,7 @@ $ cat workload.txt | ./css.out (parameters are as follows)
 | **-d \<n\>** | Set switch ports (not include host) for dragonfly (-T 4) | Integer <br> (defaultly 8) |
 | **-m \<n\>** | Set the number of switches in a group for dragonfly (-T 4) | Integer <br> (defaultly 4) |
 | **-t \<filename\>** | Set topology file name (-T 5) | File name |
+| **-s \<n\>** | Set the total number of slots in a switch | Integer <br> (defaultly 8) |
 
 #### Example of workload file (e.g., workload.txt):
 

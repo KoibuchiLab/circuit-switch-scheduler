@@ -261,10 +261,12 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
                 }                
         }
 
-        outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
-                   << max_cp_dst << endl;
-        outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
-                   << max_cp << endl;
+        // outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
+        //            << max_cp_dst << endl;
+        // outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+        //            << max_cp << endl;
+        outputfile << " === Max. number of slots [FLOW] ===" << endl
+                    << max_cp << endl;
 
         //cout << " (east, west, south, north, front, back, from host0,... east(vch2), south(vch2), west(vch2), north(vch2), front, back, from host(vch2)0,.. to host(vch2)0,.."
         outputfile << " === Number of slots === " << endl;
@@ -463,7 +465,7 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
                 outputfile_sw << degree + 1 << " " << default_slot << endl; // number of output ports, number of slots
                 outputfile_sw << "0000" << endl;                            // output 00 --> localhost
                 bool slot_occupied = false;
-                for (int s = 0; s < slots; s++)
+                for (int s = 0; s < default_slot; s++)
                 {
                         if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + degree + 2 * Host_Num].routing_table.size() > 0)
                         {
@@ -502,8 +504,8 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
                         outputfile_sw << endl;
                         slot_occupied = false;
                 }
-                for (int s = 0; s < default_slot - slots; s++)
-                        outputfile_sw << "void" << endl;
+                // for (int s = 0; s < default_slot - slots; s++)
+                //         outputfile_sw << "void" << endl;
 
                 // if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size() > 0){
                 //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+degree+2*Host_Num].routing_table.size(); j++){
@@ -528,7 +530,7 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
                         {
                                 outputfile_sw << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                 {
@@ -567,8 +569,8 @@ void show_paths(int timestamp, ofstream &outputfile, vector<Job> all_jobs, vecto
                                 outputfile_sw << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile_sw << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile_sw << "void" << endl;
 
                         // if (Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size() > 0){
                         //         for (int j=0; j < Crossing_Paths[Vch*(degree+1+2*Host_Num)*i+op].routing_table.size(); j++){
@@ -672,10 +674,12 @@ void show_paths_tree(int timestamp, ofstream &outputfile, vector<Job> all_jobs, 
                 }                
         }        
 
-        outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
-                   << max_cp_dst << endl;
-        outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
-                   << max_cp << endl;
+        // outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
+        //            << max_cp_dst << endl;
+        // outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+        //            << max_cp << endl;
+        outputfile << " === Max. number of slots [FLOW] ===" << endl
+                    << max_cp << endl;
 
         outputfile << " === Number of slots === " << endl;
         outputfile << " UP0, DOWN1, DOWN2, DOWN3, DOWN4, ... " << endl;
@@ -834,7 +838,7 @@ void show_paths_tree(int timestamp, ofstream &outputfile, vector<Job> all_jobs, 
                         {
                                 outputfile_sw << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 for (int j = 0; j < Crossing_Paths[PORT * (i + node_num) + op].routing_table.size(); j = j + 7)
                                 { //i+node_num --> sw #
@@ -860,8 +864,8 @@ void show_paths_tree(int timestamp, ofstream &outputfile, vector<Job> all_jobs, 
                                 outputfile_sw << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile_sw << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile_sw << "void" << endl;
                 }
                 outputfile_sw.close();
         }
@@ -949,10 +953,12 @@ void show_paths_fullyconnected(int timestamp, ofstream &outputfile, vector<Job> 
                 }                
         }        
 
-        outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
-                   << max_cp_dst << endl;
-        outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
-                   << max_cp << endl;
+        // outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
+        //            << max_cp_dst << endl;
+        // outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+        //            << max_cp << endl;
+        outputfile << " === Max. number of slots [FLOW] ===" << endl
+                    << max_cp << endl;
 
         outputfile << " === Number of slots === " << endl;
         //cout << " East, West, South, North, (Back, Front, ...) Out, In " << endl;
@@ -1106,7 +1112,7 @@ void show_paths_fullyconnected(int timestamp, ofstream &outputfile, vector<Job> 
                         {
                                 outputfile_sw << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                 {
@@ -1135,8 +1141,8 @@ void show_paths_fullyconnected(int timestamp, ofstream &outputfile, vector<Job> 
                                 outputfile_sw << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile_sw << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile_sw << "void" << endl;
                 }
                 outputfile_sw.close();
         }
@@ -1224,10 +1230,12 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
                 }                
         }        
 
-        outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
-                   << max_cp_dst << endl;
-        outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
-                   << max_cp << endl;
+        // outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
+        //            << max_cp_dst << endl;
+        // outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+        //            << max_cp << endl;
+        outputfile << " === Max. number of slots [FLOW] ===" << endl
+                    << max_cp << endl;
 
         outputfile << " === Number of slots === " << endl;
         //cout << " East, West, South, North, (Back, Front, ...) Out, In " << endl;
@@ -1410,7 +1418,7 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
                 outputfile_sw << degree + 1 << " " << default_slot << endl; // number of output ports, number of slots
                 outputfile_sw << "0000" << endl;                            // output 00 --> localhost
                 bool slot_occupied = false;
-                for (int s = 0; s < slots; s++)
+                for (int s = 0; s < default_slot; s++)
                 {
                         if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + degree + 2 * Host_Num].routing_table.size() > 0)
                         {
@@ -1439,8 +1447,8 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
                         outputfile_sw << endl;
                         slot_occupied = false;
                 }
-                for (int s = 0; s < default_slot - slots; s++)
-                        outputfile_sw << "void" << endl;
+                // for (int s = 0; s < default_slot - slots; s++)
+                //         outputfile_sw << "void" << endl;
 
                 for (int op = 1; op < degree + 1; op++)
                 {
@@ -1452,7 +1460,7 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
                         {
                                 outputfile_sw << op << "00" << endl;
                         }
-                        for (int s = 0; s < slots; s++)
+                        for (int s = 0; s < default_slot; s++)
                         {
                                 if (Crossing_Paths[(degree + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                 {
@@ -1481,8 +1489,8 @@ void show_paths_fcc(int timestamp, ofstream &outputfile, vector<Job> all_jobs, v
                                 outputfile_sw << endl;
                                 slot_occupied = false;
                         }
-                        for (int s = 0; s < default_slot - slots; s++)
-                                outputfile_sw << "void" << endl;
+                        // for (int s = 0; s < default_slot - slots; s++)
+                        //         outputfile_sw << "void" << endl;
                 }
                 outputfile_sw.close();
         }
@@ -1570,10 +1578,12 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                 }                
         }        
 
-        outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
-                   << max_cp_dst << endl;
-        outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
-                   << max_cp << endl;
+        // outputfile << " === Max. number of slots (w/o update) [FLOW] ===" << endl
+        //            << max_cp_dst << endl;
+        // outputfile << " === Max. number of slots (w/ update) [FLOW] ===" << endl
+        //            << max_cp << endl;
+        outputfile << " === Max. number of slots [FLOW] ===" << endl
+                    << max_cp << endl;
 
         outputfile << " === Number of slots === " << endl;
         //cout << " East, West, South, North, (Back, Front, ...) Out, In " << endl;
@@ -1764,7 +1774,7 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                 outputfile_sw << degree + 1 << " " << default_slot << endl; // number of output ports, number of slots
                 outputfile_sw << "0000" << endl;                            // output 00 --> localhost
                 bool slot_occupied = false;
-                for (int s = 0; s < slots; s++)
+                for (int s = 0; s < default_slot; s++)
                 {
                         if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + (switch_num - 1) + 2 * Host_Num].routing_table.size() > 0)
                         {
@@ -1793,8 +1803,8 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                         outputfile_sw << endl;
                         slot_occupied = false;
                 }
-                for (int s = 0; s < default_slot - slots; s++)
-                        outputfile_sw << "void" << endl;
+                // for (int s = 0; s < default_slot - slots; s++)
+                //         outputfile_sw << "void" << endl;
 
                 for (int op = 0; op < (switch_num - 1) + 1; op++)
                 {
@@ -1809,7 +1819,7 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                                 {
                                         outputfile_sw << out_port << "00" << endl;
                                 }
-                                for (int s = 0; s < slots; s++)
+                                for (int s = 0; s < default_slot; s++)
                                 {
                                         if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                         {
@@ -1838,8 +1848,8 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                                         outputfile_sw << endl;
                                         slot_occupied = false;
                                 }
-                                for (int s = 0; s < default_slot - slots; s++)
-                                        outputfile_sw << "void" << endl;
+                                // for (int s = 0; s < default_slot - slots; s++)
+                                //         outputfile_sw << "void" << endl;
                         }
                 }
 
@@ -1887,7 +1897,7 @@ void printPath(int parent[], int j, int src, int dst, vector<vector<int>> &pair_
 }
 
 // A utility function to print the constructed distance array
-int printSolution(int dist[], int V, int parent[], int src, vector<vector<int>> &pair_path)
+void printSolution(int dist[], int V, int parent[], int src, vector<vector<int>> &pair_path)
 {
         //int src = 0;
         //printf("Vertex\t Distance\tPath");
@@ -3646,7 +3656,7 @@ int main(int argc, char *argv[])
         static int Topology = 0;
         int c;
         //false:destination_based (slot # not updated), true:path_based (slot # updated)
-        static bool path_based = false;
+        static bool path_based = true;
         // (mesh or torus) degree = 2 * dimension, (fully-connected) degree = switch_num -1, (fcc) degree = inter-group + intra-group (2 for ring)
         static int degree = 4;
         //mesh or torus
@@ -3662,7 +3672,10 @@ int main(int argc, char *argv[])
 
         static int queue_policy = 0; //fcfs:0, lsf:1, ssf:2, lrf:3, srf:4
 
-        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:q:t:h")) != -1)
+        // default number of slots in one switch
+        static int default_slot = 8;
+
+        while ((c = getopt(argc, argv, "a:A:n:T:uD:d:m:q:t:s:h")) != -1)
         {
                 switch (c)
                 {
@@ -3676,7 +3689,7 @@ int main(int argc, char *argv[])
                         Host_Num = atoi(optarg);
                         break;
                 case 'u':
-                        path_based = true;
+                        path_based = false;
                         break;
                 case 'D':
                         dimension = atoi(optarg);
@@ -3690,6 +3703,9 @@ int main(int argc, char *argv[])
                 case 't': //topology file (Topology = 5)
                         topology_file = optarg;
                         break;
+                case 's': //number of slots in one switch
+                        default_slot = atoi(optarg);
+                        break;         
                 case 'q': //queuing policy
                         queue_policy = atoi(optarg);
                         break;
@@ -3713,7 +3729,7 @@ int main(int argc, char *argv[])
         }
 
         cout << " ### simulation start ###" << endl;
-        cout << " Update of slot number 0 (no) / 1 (yes) --> " << path_based << " (Use -u to activate the update) " << endl;
+        // cout << " Update of slot number 0 (no) / 1 (yes) --> " << path_based << " (Use -u to activate the update) " << endl;
 
         // source and destination
         int src = -1, dst = -1, h_src = -1, h_dst = -1;
@@ -3984,7 +4000,6 @@ int main(int argc, char *argv[])
         int max_cp_dst_t = 0;
 
         int max_id = 0;
-        int default_slot = 8;
 
         vector<int>::iterator find_ptr;
 

@@ -1807,8 +1807,6 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                 //         outputfile_sw << "void" << endl;
 
                 for (int n = 1; n < degree+1; n++){
-                        vector<int> temp_ip;
-                        vector<int>::iterator it;  
                         for (int op = 0; op < (switch_num - 1) + 1; op++)
                         {
                                 int out_port = Switch_Topo[((switch_num - 1) + 1 + 2 * Host_Num) * i + op];
@@ -1825,6 +1823,8 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                                         }
                                         for (int s = 0; s < default_slot; s++)
                                         {
+                                                vector<int> temp_ip;
+                                                vector<int>::iterator it;  
                                                 if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                                 {
                                                         for (int j = 0; j < Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size(); j = j + 7)

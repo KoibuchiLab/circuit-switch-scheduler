@@ -1587,12 +1587,12 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
 
         outputfile << " === Number of slots === " << endl;
         //cout << " East, West, South, North, (Back, Front, ...) Out, In " << endl;
-        outputfile << " SW0, SW1, SW2, SW3, SW4, ... " << endl;
+        outputfile << " SW0, SW1, SW2, SW3, SW4, ..., out, in " << endl;
 
         outputfile << " SW " << setw(2) << port / ((switch_num - 1) + 1 + 2 * Host_Num) << ":  ";
         while (elem != Crossing_Paths.end())
         {
-                if (port % ((switch_num - 1) + 1 + 2 * Host_Num) != (switch_num - 1) + 2 * Host_Num && port % ((switch_num - 1) + 1 + 2 * Host_Num) != (switch_num - 1) + 2 * Host_Num - 1)
+                // if (port % ((switch_num - 1) + 1 + 2 * Host_Num) != (switch_num - 1) + 2 * Host_Num && port % ((switch_num - 1) + 1 + 2 * Host_Num) != (switch_num - 1) + 2 * Host_Num - 1)
                         outputfile << " " << (*elem).flow_index.size();
 
                 //if (pointer<degree && slots<(*elem).pair_index.size())  {pointer++; slots = (*elem).pair_index.size();}
@@ -1806,53 +1806,63 @@ void show_paths_tf(int timestamp, ofstream &outputfile, vector<Job> all_jobs, ve
                 // for (int s = 0; s < default_slot - slots; s++)
                 //         outputfile_sw << "void" << endl;
 
-                for (int op = 0; op < (switch_num - 1) + 1; op++)
-                {
-                        int out_port = Switch_Topo[((switch_num - 1) + 1 + 2 * Host_Num) * i + op];
-                        if (out_port != -1)
+                for (int n = 1; n < degree+1; n++){
+                        vector<int> temp_ip;
+                        vector<int>::iterator it;  
+                        for (int op = 0; op < (switch_num - 1) + 1; op++)
                         {
-                                if (out_port < 10 && out_port > -1)
+                                int out_port = Switch_Topo[((switch_num - 1) + 1 + 2 * Host_Num) * i + op];
+                                //if (out_port != -1)
+                                if (out_port == n)
                                 {
-                                        outputfile_sw << "0" << out_port << "00" << endl;
-                                }
-                                else
-                                {
-                                        outputfile_sw << out_port << "00" << endl;
-                                }
-                                for (int s = 0; s < default_slot; s++)
-                                {
-                                        if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
+                                        if (out_port < 10 && out_port > -1)
                                         {
-                                                for (int j = 0; j < Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size(); j = j + 7)
+                                                outputfile_sw << "0" << out_port << "00" << endl;
+                                        }
+                                        else
+                                        {
+                                                outputfile_sw << out_port << "00" << endl;
+                                        }
+                                        for (int s = 0; s < default_slot; s++)
+                                        {
+                                                if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size() > 0)
                                                 {
-                                                        if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 1] == s)
-                                                        {                                                                                                                // j+1 --> slot number
-                                                                outputfile_sw << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j] << " "; // j --> input port
-                                                                slot_occupied = true;
-                                                                outputfile << "      Port " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j]
-                                                                           << " (Slot " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 1]
-                                                                           << ") --> Port " << out_port << " (Slot " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 1]
-                                                                           << "), from node " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 2]
-                                                                           << " to node " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 3]
-                                                                           << " (Pair ID " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 4]
-                                                                           << ", Flow ID " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 5]
-                                                                           << ", Job " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 6]
-                                                                           << ")" << endl; // j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
+                                                        for (int j = 0; j < Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table.size(); j = j + 7)
+                                                        {
+                                                                if (Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 1] == s)
+                                                                {                                                                                                               
+                                                                        int input_port = Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j];
+                                                                        it = find(temp_ip.begin(), temp_ip.end(), input_port);
+                                                                        if (it == temp_ip.end()){
+                                                                                outputfile_sw << input_port << " ";
+                                                                                temp_ip.push_back(input_port);
+                                                                        }
+
+                                                                        slot_occupied = true;
+                                                                        outputfile << "      Port " << input_port
+                                                                                << " (Slot " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 1]
+                                                                                << ") --> Port " << out_port << " (Slot " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 1]
+                                                                                << "), from node " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 2]
+                                                                                << " to node " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 3]
+                                                                                << " (Pair ID " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 4]
+                                                                                << ", Flow ID " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 5]
+                                                                                << ", Job " << Crossing_Paths[((switch_num - 1) + 1 + 2 * Host_Num) * i + op].routing_table[j + 6]
+                                                                                << ")" << endl; // j --> input port, j+1 --> slot number, j+2 --> src node, j+3 --> dst node, j+4 --> pair id, j+5 --> flow id, j+6 --> job id
+                                                                }
                                                         }
                                                 }
+                                                if (slot_occupied == false)
+                                                {
+                                                        outputfile_sw << "void";
+                                                }
+                                                outputfile_sw << endl;
+                                                slot_occupied = false;
                                         }
-                                        if (slot_occupied == false)
-                                        {
-                                                outputfile_sw << "void";
-                                        }
-                                        outputfile_sw << endl;
-                                        slot_occupied = false;
+                                        // for (int s = 0; s < default_slot - slots; s++)
+                                        //         outputfile_sw << "void" << endl;
                                 }
-                                // for (int s = 0; s < default_slot - slots; s++)
-                                //         outputfile_sw << "void" << endl;
                         }
                 }
-
                 outputfile_sw.close();
         }
         outputfile.close();
